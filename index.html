@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HvnChat</title>
+    <title>HvnChat PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -14,159 +14,151 @@
             overflow: hidden;
             background-color: #0b0e14;
             color: #e5e7eb;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
         
-        /* Fixed Header & Footer */
-        header, footer { flex-shrink: 0; }
-        
-        /* Chat Area */
         #chatView {
             flex: 1;
             overflow-y: auto;
             scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
+            padding-bottom: 2rem;
         }
 
         .message {
-            max-width: 85%;
-            margin-bottom: 1.5rem;
-            animation: fadeIn 0.3s ease;
+            max-width: 90%;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.2s ease-out;
+            word-wrap: break-word;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        .user-msg { align-self: flex-end; background: #2563eb; color: white; border-radius: 1.25rem 1.25rem 0.25rem 1.25rem; padding: 0.8rem 1.2rem; }
-        .ai-msg { align-self: flex-start; background: #1e2530; color: #d1d5db; border-radius: 1.25rem 1.25rem 1.25rem 0.25rem; padding: 0.8rem 1.2rem; width: 100%; max-width: 90%; }
+        .user-msg { 
+            align-self: flex-end; 
+            background: #2563eb; 
+            color: white; 
+            border-radius: 1.25rem 1.25rem 0.25rem 1.25rem; 
+            padding: 0.75rem 1rem; 
+            white-space: pre-wrap;
+        }
+        
+        .ai-msg { 
+            align-self: flex-start; 
+            background: #1e2530; 
+            color: #d1d5db; 
+            border-radius: 1.25rem 1.25rem 1.25rem 0.25rem; 
+            padding: 0.75rem 1rem; 
+            width: fit-content;
+            max-width: 95%;
+        }
 
-        /* Code Block Styling inside Chat */
+        /* Optimized Code Block */
         .code-container {
             background: #0d1117;
             border-radius: 0.75rem;
-            margin-top: 0.75rem;
+            margin: 0.8rem 0;
             border: 1px solid #30363d;
-            overflow: hidden;
+            max-width: 100%;
         }
         .code-header {
             background: #161b22;
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #8b949e;
-            border-bottom: 1px solid #30363d;
+            text-transform: uppercase;
+            font-weight: bold;
         }
-        pre {
+        .code-content {
+            max-height: 350px;
+            overflow: auto;
             padding: 1rem;
-            overflow-x: auto;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: 'Consolas', monospace;
             font-size: 0.85rem;
             line-height: 1.5;
             color: #79c0ff;
+            background: transparent;
         }
 
-        /* Loading Dots */
-        .typing { display: flex; gap: 4px; padding: 10px; }
-        .dot { width: 6px; height: 6px; background: #4b5563; border-radius: 50%; animation: blink 1.4s infinite both; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
 
-        #errorNotice { display: none; position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 100; background: #ef4444; padding: 0.75rem 1.25rem; border-radius: 1rem; font-size: 0.85rem; width: 90%; max-width: 400px; }
+        .thinking-dot { animation: blink 1.4s infinite both; }
+        @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <header class="h-16 border-b border-gray-800 bg-[#0b0e14] flex items-center justify-between px-4 z-20">
-        <button onclick="toggleSidebar()" class="p-2 hover:bg-gray-800 rounded-lg transition">
-            <i data-lucide="menu" class="w-6 h-6 text-gray-400"></i>
-        </button>
-        <h1 class="font-bold text-lg tracking-tight text-white">HvnChat</h1>
-        <button onclick="downloadSession()" class="p-2 hover:bg-gray-800 rounded-lg transition text-blue-500">
-            <i data-lucide="download-cloud" class="w-6 h-6"></i>
-        </button>
-    </header>
-
-    <div id="errorNotice" class="shadow-xl text-white flex justify-between items-center">
-        <span id="errorText"></span>
-        <button onclick="hideError()"><i data-lucide="x" class="w-4 h-4"></i></button>
-    </div>
+    <header class="h-16 border-b border-gray-800 bg-[#0b0e14] flex items-center justify-between px-4 shrink-0">
+        <button onclick="toggleSidebar()" class="p-2 hover:bg-gray-800 rounded-lg"><i data-lucide="menu" class="w-6 h-6"></i></button>
+        <h1 class="font-bold text-lg text-white">HvnChat</h1>
+        <div class="w-10"></div> </header>
 
     <div class="flex flex-1 overflow-hidden relative">
-        
-        <aside id="sidebar" class="absolute lg:relative z-30 w-72 h-full bg-[#0f1219] border-r border-gray-800 flex flex-col transition-transform -translate-x-full lg:translate-x-0">
-            <div class="p-4 border-b border-gray-800 flex justify-between items-center">
-                <button onclick="createNewChat()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition">
-                    <i data-lucide="plus" class="w-4 h-4"></i> New Chat
-                </button>
-                <button onclick="toggleSidebar()" class="lg:hidden ml-2 p-2 text-gray-400"><i data-lucide="chevron-left"></i></button>
-            </div>
-            <div id="historyList" class="flex-1 overflow-y-auto p-3 space-y-2">
-                </div>
-            <div class="p-4 bg-[#0b0e14] border-t border-gray-800">
-                <button onclick="toggleSettings()" class="flex items-center gap-3 text-gray-400 hover:text-white w-full p-2 rounded-lg transition text-sm">
-                    <i data-lucide="settings" class="w-5 h-5"></i> Settings
-                </button>
+        <aside id="sidebar" class="absolute lg:relative z-40 w-72 h-full bg-[#0f1219] border-r border-gray-800 flex flex-col transition-transform -translate-x-full lg:translate-x-0">
+            <div class="p-4"><button onclick="createNewChat()" class="w-full bg-blue-600 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> New Chat</button></div>
+            <div id="historyList" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
+            <div class="p-4 border-t border-gray-800">
+                <button onclick="toggleSettings()" class="flex items-center gap-3 text-gray-400 w-full p-2 rounded-lg text-sm"><i data-lucide="settings" class="w-5 h-5"></i> Settings</button>
             </div>
         </aside>
 
-        <main class="flex-1 flex flex-col min-w-0 bg-[#0b0e14] relative">
-            <div id="chatView" class="p-4 md:px-8 flex flex-col">
-                <div class="ai-msg message">
-                    Hey friend! I'm **HvnChat**. Ask me anything, or let's build something cool!
-                </div>
+        <main class="flex-1 flex flex-col min-w-0 bg-[#0b0e14]">
+            <div id="chatView" class="p-4 md:px-12 flex flex-col"></div>
+
+            <div id="thinking" class="hidden px-12 py-2 flex gap-1">
+                <div class="w-2 h-2 bg-gray-500 rounded-full thinking-dot"></div>
+                <div class="w-2 h-2 bg-gray-500 rounded-full thinking-dot" style="animation-delay: 0.2s"></div>
+                <div class="w-2 h-2 bg-gray-500 rounded-full thinking-dot" style="animation-delay: 0.4s"></div>
             </div>
 
-            <div id="thinking" class="hidden px-8 py-2">
-                <div class="typing">
-                    <span class="text-xs text-gray-500 mr-2 uppercase font-bold tracking-widest">HvnChat</span>
-                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            <footer class="p-4">
+                <div class="max-w-4xl mx-auto flex items-end gap-2 bg-[#1e2530] rounded-2xl p-2 border border-gray-700 focus-within:border-blue-500 shadow-xl">
+                    <label class="p-2.5 cursor-pointer hover:bg-gray-700 rounded-xl transition">
+                        <i data-lucide="paperclip" class="w-5 h-5 text-gray-400"></i>
+                        <input type="file" id="fileInput" class="hidden" onchange="handleFile(this)">
+                    </label>
+                    <textarea id="userInput" rows="1" placeholder="Type a message..." class="flex-1 bg-transparent py-2.5 px-2 focus:outline-none resize-none text-white text-sm max-h-40" onkeydown="handleEnter(event)"></textarea>
+                    <button id="sendBtn" onclick="sendMessage()" class="bg-blue-600 p-2.5 rounded-xl active:scale-90 transition"><i data-lucide="send" class="w-5 h-5 text-white"></i></button>
                 </div>
-            </div>
-
-            <footer class="p-4 bg-[#0b0e14]">
-                <div class="max-w-4xl mx-auto flex items-end gap-2 bg-[#1e2530] rounded-2xl p-2 border border-gray-700 focus-within:border-blue-500 transition shadow-lg">
-                    <textarea id="userInput" rows="1" 
-                        placeholder="Message HvnChat..." 
-                        class="flex-1 bg-transparent py-2 px-3 focus:outline-none resize-none text-white text-sm max-h-40"
-                        oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
-                    <button id="sendBtn" onclick="sendMessage()" class="bg-blue-600 hover:bg-blue-700 p-2.5 rounded-xl transition-all active:scale-95">
-                        <i data-lucide="arrow-up" class="w-5 h-5 text-white"></i>
-                    </button>
-                </div>
-                <p class="text-[10px] text-center text-gray-600 mt-2">HvnChat can make mistakes. Verify important info.</p>
             </footer>
         </main>
     </div>
 
     <div id="settingsModal" class="fixed inset-0 bg-black/90 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-[#0f1219] w-full max-w-sm rounded-2xl border border-gray-800 shadow-2xl overflow-hidden">
-            <div class="p-6">
-                <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-white">
-                    <i data-lucide="sliders" class="text-blue-500 w-5 h-5"></i> Settings
-                </h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Model</label>
-                        <input id="modelId" type="text" class="w-full bg-black/40 border border-gray-700 rounded-lg p-2.5 text-sm focus:border-blue-500 outline-none text-blue-400">
+        <div class="bg-[#0f1219] w-full max-w-md rounded-2xl border border-gray-800 shadow-2xl overflow-hidden">
+            <div class="p-6 space-y-5">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2"><i data-lucide="sliders"></i> Settings</h2>
+                
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">OpenRouter API Key</label>
+                    <div class="flex gap-2 mt-1">
+                        <input id="apiKey" type="password" readonly class="flex-1 bg-black/40 border border-gray-700 rounded-lg p-2.5 text-sm outline-none opacity-60">
+                        <button onclick="toggleKeyEdit()" id="keyEditBtn" class="bg-gray-800 px-3 rounded-lg text-xs font-bold hover:bg-gray-700">Edit</button>
                     </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">API Key</label>
-                        <input id="apiKey" type="password" placeholder="sk-or-..." class="w-full bg-black/40 border border-gray-700 rounded-lg p-2.5 text-sm focus:border-blue-500 outline-none">
-                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">Model ID</label>
+                    <input id="modelId" type="text" class="w-full mt-1 bg-black/40 border border-gray-700 rounded-lg p-2.5 text-sm outline-none focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">System Prompt (Instructions)</label>
+                    <textarea id="sysPrompt" rows="4" class="w-full mt-1 bg-black/40 border border-gray-700 rounded-lg p-2.5 text-sm outline-none focus:border-blue-500 resize-none"></textarea>
                 </div>
             </div>
             <div class="p-4 bg-gray-900/50 flex justify-end">
-                <button onclick="toggleSettings()" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-xl text-sm font-bold transition">Save</button>
+                <button onclick="saveSettings()" class="bg-blue-600 px-8 py-2 rounded-xl text-sm font-bold shadow-lg">Save & Close</button>
             </div>
         </div>
     </div>
 
     <script>
         const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-        const SYSTEM_PROMPT = "You are HvnChat, a friendly and helpful AI assistant. Answer in clear text. If you provide code, wrap it in markdown code blocks like ```html ... ```. Keep responses helpful and concise.";
-        
         let chats = JSON.parse(localStorage.getItem('hvn_chats') || '[]');
         let currentChatId = Date.now();
         let messages = [];
@@ -175,35 +167,66 @@
 
         window.onload = () => {
             document.getElementById('apiKey').value = localStorage.getItem('apiKey') || "";
-            document.getElementById('modelId').value = localStorage.getItem('modelId') || "deepseek/deepseek-r1:free";
+            document.getElementById('modelId').value = localStorage.getItem('modelId') || "google/gemini-2.0-flash-lite-preview-02-05:free";
+            document.getElementById('sysPrompt').value = localStorage.getItem('sysPrompt') || "You are HvnChat, a helpful AI friend. Use markdown for code.";
             renderHistory();
+            if(chats.length > 0) loadChat(chats[0].id);
+            else createNewChat();
         };
 
-        function showError(msg) {
-            document.getElementById('errorText').innerText = msg;
-            document.getElementById('errorNotice').style.display = 'flex';
-            setTimeout(hideError, 5000);
-        }
-        function hideError() { document.getElementById('errorNotice').style.display = 'none'; }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
+        function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
 
-        function toggleSettings() {
-            const modal = document.getElementById('settingsModal');
-            if (!modal.classList.contains('hidden')) {
-                localStorage.setItem('apiKey', document.getElementById('apiKey').value);
-                localStorage.setItem('modelId', document.getElementById('modelId').value);
+        function toggleKeyEdit() {
+            const input = document.getElementById('apiKey');
+            const btn = document.getElementById('keyEditBtn');
+            if (input.readOnly) {
+                input.readOnly = false;
+                input.classList.remove('opacity-60');
+                btn.innerText = "Lock";
+                input.type = "text";
+            } else {
+                input.readOnly = true;
+                input.classList.add('opacity-60');
+                btn.innerText = "Edit";
+                input.type = "password";
             }
-            modal.classList.toggle('hidden');
+        }
+
+        function saveSettings() {
+            localStorage.setItem('apiKey', document.getElementById('apiKey').value);
+            localStorage.setItem('modelId', document.getElementById('modelId').value);
+            localStorage.setItem('sysPrompt', document.getElementById('sysPrompt').value);
+            toggleSettings();
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        async function handleFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('userInput').value += `\n[File: ${file.name}]\n${e.target.result}\n`;
+                document.getElementById('userInput').style.height = 'auto';
+                document.getElementById('userInput').style.height = document.getElementById('userInput').scrollHeight + 'px';
+            };
+            reader.readAsText(file);
         }
 
         async function sendMessage() {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
-            const key = document.getElementById('apiKey').value;
-            const model = document.getElementById('modelId').value;
+            const key = localStorage.getItem('apiKey');
+            const model = localStorage.getItem('modelId');
+            const sys = localStorage.getItem('sysPrompt');
 
-            if (!text) return;
-            if (!key) { showError("API Key missing! Check settings."); toggleSettings(); return; }
+            if (!text || !key) return;
 
             appendMessage('user', text);
             input.value = '';
@@ -216,18 +239,16 @@
                     headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         model: model,
-                        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages, { role: "user", content: text }]
+                        messages: [{ role: "system", content: sys }, ...messages, { role: "user", content: text }]
                     })
                 });
 
                 const data = await response.json();
-                if (data.error) throw new Error(data.error.message);
-
-                const aiMsg = data.choices[0].message.content;
+                const aiMsg = data.choices[0].message.content.trim(); // Trimmed leading/trailing spaces
                 appendMessage('assistant', aiMsg);
 
             } catch (err) {
-                showError(err.message);
+                alert("Error: " + err.message);
             } finally {
                 document.getElementById('thinking').classList.add('hidden');
             }
@@ -236,10 +257,10 @@
         function appendMessage(role, content) {
             const chatView = document.getElementById('chatView');
             const msgDiv = document.createElement('div');
-            msgDiv.className = `${role === 'user' ? 'user-msg' : 'ai-msg'} message shadow-sm`;
+            msgDiv.className = `${role === 'user' ? 'user-msg' : 'ai-msg'} message`;
             
             if (role === 'assistant') {
-                msgDiv.innerHTML = formatAIResponse(content);
+                msgDiv.innerHTML = parseMarkdown(content);
             } else {
                 msgDiv.innerText = content;
             }
@@ -248,37 +269,50 @@
             chatView.scrollTop = chatView.scrollHeight;
             messages.push({ role, content });
             saveChat();
+            lucide.createIcons();
         }
 
-        // Format code blocks with Copy button
-        function formatAIResponse(text) {
-            const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-            return text.replace(codeBlockRegex, (match, lang, code) => {
+        function parseMarkdown(text) {
+            const codeRegex = /```(\w+)?\n([\s\S]*?)```/g;
+            return text.replace(codeRegex, (match, lang, code) => {
                 const id = 'code-' + Math.random().toString(36).substr(2, 9);
                 return `
                     <div class="code-container">
                         <div class="code-header">
                             <span>${lang || 'code'}</span>
-                            <button onclick="copyToClipboard('${id}')" class="flex items-center gap-1 hover:text-white transition">
-                                <i data-lucide="copy" class="w-3 h-3"></i> Copy
-                            </button>
+                            <div class="flex gap-3">
+                                <button onclick="copyCode('${id}')" class="flex items-center gap-1 hover:text-white transition"><i data-lucide="copy" class="w-3 h-3"></i> Copy</button>
+                                <button onclick="downloadCode('${id}')" class="flex items-center gap-1 hover:text-white transition"><i data-lucide="download" class="w-3 h-3"></i> Download</button>
+                            </div>
                         </div>
-                        <pre id="${id}">${escapeHtml(code.trim())}</pre>
+                        <pre class="code-content" id="${id}">${escapeHtml(code.trim())}</pre>
                     </div>
                 `;
             }).replace(/\n/g, '<br>');
-            setTimeout(() => lucide.createIcons(), 10);
         }
 
         function escapeHtml(unsafe) {
             return unsafe.replace(/[&<"']/g, m => ({'&':'&amp;','<':'&lt;','"':'&quot;',"'":"&#039;"}[m]));
         }
 
-        function copyToClipboard(id) {
+        function copyCode(id) {
             const text = document.getElementById(id).innerText;
             navigator.clipboard.writeText(text).then(() => {
-                alert("Code copied!");
+                const btn = event.currentTarget;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> Copied!';
+                lucide.createIcons();
+                setTimeout(() => { btn.innerHTML = originalText; lucide.createIcons(); }, 2000);
             });
+        }
+
+        function downloadCode(id) {
+            const text = document.getElementById(id).innerText;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'hvn-code-' + id.split('-')[1] + '.txt';
+            a.click();
         }
 
         function saveChat() {
@@ -294,8 +328,8 @@
             const list = document.getElementById('historyList');
             list.innerHTML = chats.map(c => `
                 <div onclick="loadChat(${c.id})" class="group flex items-center justify-between p-3 text-xs bg-gray-800/20 hover:bg-gray-800 rounded-xl cursor-pointer transition">
-                    <span class="truncate pr-2 text-gray-400 group-hover:text-white">${c.title}</span>
-                    <button onclick="deleteChat(${c.id}, event)" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                    <span class="truncate pr-2 text-gray-400 group-hover:text-white font-medium">${c.title}</span>
+                    <button onclick="deleteChat(${c.id}, event)" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                 </div>
             `).join('');
             lucide.createIcons();
@@ -306,43 +340,34 @@
             if (!chat) return;
             currentChatId = id;
             messages = [...chat.messages];
-            const chatView = document.getElementById('chatView');
-            chatView.innerHTML = '';
+            const view = document.getElementById('chatView');
+            view.innerHTML = '';
             messages.forEach(m => {
                 const div = document.createElement('div');
                 div.className = `${m.role === 'user' ? 'user-msg' : 'ai-msg'} message`;
-                div.innerHTML = m.role === 'assistant' ? formatAIResponse(m.content) : m.content;
-                chatView.appendChild(div);
+                div.innerHTML = m.role === 'assistant' ? parseMarkdown(m.content) : m.content;
+                view.appendChild(div);
             });
-            chatView.scrollTop = chatView.scrollHeight;
+            view.scrollTop = view.scrollHeight;
+            lucide.createIcons();
             if (window.innerWidth < 1024) toggleSidebar();
         }
 
         function createNewChat() {
             currentChatId = Date.now();
             messages = [];
-            document.getElementById('chatView').innerHTML = '<div class="ai-msg message">New Session Started. How can I help?</div>';
+            document.getElementById('chatView').innerHTML = '<div class="ai-msg message">Hello! How can I assist you today?</div>';
             if (window.innerWidth < 1024) toggleSidebar();
         }
 
         function deleteChat(id, e) {
             e.stopPropagation();
-            if (confirm("Delete this chat?")) {
+            if (confirm("Delete chat?")) {
                 chats = chats.filter(c => c.id !== id);
                 localStorage.setItem('hvn_chats', JSON.stringify(chats));
                 if (currentChatId === id) createNewChat();
                 renderHistory();
             }
-        }
-
-        function downloadSession() {
-            if (messages.length === 0) return;
-            const content = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
-            const blob = new Blob([content], { type: 'text/plain' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `chat-session-${currentChatId}.txt`;
-            a.click();
         }
     </script>
 </body>
