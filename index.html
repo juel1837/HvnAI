@@ -22,11 +22,13 @@
             overflow-y: auto;
             scroll-behavior: smooth;
             padding-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
         }
 
         .message {
             max-width: 90%;
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
             animation: fadeIn 0.2s ease-out;
             word-wrap: break-word;
         }
@@ -40,6 +42,7 @@
             border-radius: 1.25rem 1.25rem 0.25rem 1.25rem; 
             padding: 0.75rem 1rem; 
             white-space: pre-wrap;
+            font-size: 0.95rem;
         }
         
         .ai-msg { 
@@ -50,15 +53,18 @@
             padding: 0.75rem 1rem; 
             width: fit-content;
             max-width: 95%;
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
 
-        /* Optimized Code Block */
+        /* Optimized Code Block UI */
         .code-container {
             background: #0d1117;
             border-radius: 0.75rem;
-            margin: 0.8rem 0;
+            margin: 1rem 0;
             border: 1px solid #30363d;
-            max-width: 100%;
+            width: 100%;
+            overflow: hidden;
         }
         .code-header {
             background: #161b22;
@@ -66,63 +72,66 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: #8b949e;
-            text-transform: uppercase;
-            font-weight: bold;
+            border-bottom: 1px solid #30363d;
         }
+        .code-header span { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
         .code-content {
-            max-height: 350px;
+            max-height: 400px;
             overflow: auto;
-            padding: 1rem;
-            font-family: 'Consolas', monospace;
+            padding: 1.2rem;
+            font-family: 'ui-monospace', 'SFMono-Regular', 'Consolas', monospace;
             font-size: 0.85rem;
-            line-height: 1.5;
             color: #79c0ff;
             background: transparent;
+            white-space: pre;
         }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
 
         .thinking-dot { animation: blink 1.4s infinite both; }
         @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 768px) {
+            .message { max-width: 95%; }
+            .code-content { font-size: 0.8rem; }
+        }
     </style>
 </head>
 <body>
 
-    <header class="h-16 border-b border-gray-800 bg-[#0b0e14] flex items-center justify-between px-4 shrink-0">
+    <header class="h-16 border-b border-gray-800 bg-[#0b0e14] flex items-center justify-between px-4 shrink-0 z-50">
         <button onclick="toggleSidebar()" class="p-2 hover:bg-gray-800 rounded-lg"><i data-lucide="menu" class="w-6 h-6"></i></button>
         <h1 class="font-bold text-lg text-white">HvnChat</h1>
-        <div class="w-10"></div> </header>
+        <div class="w-10"></div>
+    </header>
 
     <div class="flex flex-1 overflow-hidden relative">
         <aside id="sidebar" class="absolute lg:relative z-40 w-72 h-full bg-[#0f1219] border-r border-gray-800 flex flex-col transition-transform -translate-x-full lg:translate-x-0">
             <div class="p-4"><button onclick="createNewChat()" class="w-full bg-blue-600 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> New Chat</button></div>
             <div id="historyList" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
-            <div class="p-4 border-t border-gray-800">
-                <button onclick="toggleSettings()" class="flex items-center gap-3 text-gray-400 w-full p-2 rounded-lg text-sm"><i data-lucide="settings" class="w-5 h-5"></i> Settings</button>
+            <div class="p-4 border-t border-gray-800 bg-[#0b0e14]">
+                <button onclick="toggleSettings()" class="flex items-center gap-3 text-gray-400 w-full p-2 rounded-lg text-sm hover:text-white transition"><i data-lucide="settings" class="w-5 h-5"></i> Settings</button>
             </div>
         </aside>
 
-        <main class="flex-1 flex flex-col min-w-0 bg-[#0b0e14]">
-            <div id="chatView" class="p-4 md:px-12 flex flex-col"></div>
+        <main class="flex-1 flex flex-col min-w-0 bg-[#0b0e14] relative">
+            <div id="chatView" class="p-4 md:px-12"></div>
 
-            <div id="thinking" class="hidden px-12 py-2 flex gap-1">
-                <div class="w-2 h-2 bg-gray-500 rounded-full thinking-dot"></div>
-                <div class="w-2 h-2 bg-gray-500 rounded-full thinking-dot" style="animation-delay: 0.2s"></div>
-                <div class="w-2 h-2 bg-gray-500 rounded-full thinking-dot" style="animation-delay: 0.4s"></div>
+            <div id="thinking" class="hidden px-12 py-3 flex gap-1">
+                <div class="w-2 h-2 bg-blue-500 rounded-full thinking-dot"></div>
+                <div class="w-2 h-2 bg-blue-500 rounded-full thinking-dot" style="animation-delay: 0.2s"></div>
+                <div class="w-2 h-2 bg-blue-500 rounded-full thinking-dot" style="animation-delay: 0.4s"></div>
             </div>
 
             <footer class="p-4">
-                <div class="max-w-4xl mx-auto flex items-end gap-2 bg-[#1e2530] rounded-2xl p-2 border border-gray-700 focus-within:border-blue-500 shadow-xl">
-                    <label class="p-2.5 cursor-pointer hover:bg-gray-700 rounded-xl transition">
+                <div class="max-w-4xl mx-auto flex items-end gap-2 bg-[#1e2530] rounded-2xl p-2 border border-gray-700 focus-within:border-blue-500 shadow-xl transition-all">
+                    <label class="p-2.5 cursor-pointer hover:bg-gray-700 rounded-xl transition shrink-0">
                         <i data-lucide="paperclip" class="w-5 h-5 text-gray-400"></i>
-                        <input type="file" id="fileInput" class="hidden" onchange="handleFile(this)">
+                        <input type="file" id="fileInput" class="hidden" onchange="handleFileUpload(this)">
                     </label>
-                    <textarea id="userInput" rows="1" placeholder="Type a message..." class="flex-1 bg-transparent py-2.5 px-2 focus:outline-none resize-none text-white text-sm max-h-40" onkeydown="handleEnter(event)"></textarea>
-                    <button id="sendBtn" onclick="sendMessage()" class="bg-blue-600 p-2.5 rounded-xl active:scale-90 transition"><i data-lucide="send" class="w-5 h-5 text-white"></i></button>
+                    <textarea id="userInput" rows="1" placeholder="Ask HvnChat..." class="flex-1 bg-transparent py-2.5 px-2 focus:outline-none resize-none text-white text-sm max-h-40" onkeydown="handleKeyBehavior(event)"></textarea>
+                    <button id="sendBtn" onclick="sendMessage()" class="bg-blue-600 p-2.5 rounded-xl active:scale-90 transition shrink-0 shadow-lg shadow-blue-900/20"><i data-lucide="send-horizontal" class="w-5 h-5 text-white"></i></button>
                 </div>
             </footer>
         </main>
@@ -134,25 +143,25 @@
                 <h2 class="text-lg font-bold text-white flex items-center gap-2"><i data-lucide="sliders"></i> Settings</h2>
                 
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase">OpenRouter API Key</label>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">OpenRouter API Key</label>
                     <div class="flex gap-2 mt-1">
-                        <input id="apiKey" type="password" readonly class="flex-1 bg-black/40 border border-gray-700 rounded-lg p-2.5 text-sm outline-none opacity-60">
-                        <button onclick="toggleKeyEdit()" id="keyEditBtn" class="bg-gray-800 px-3 rounded-lg text-xs font-bold hover:bg-gray-700">Edit</button>
+                        <input id="apiKey" type="password" readonly class="flex-1 bg-black/40 border border-gray-700 rounded-lg p-2.5 text-sm outline-none opacity-50 font-mono">
+                        <button onclick="toggleKeyEdit()" id="keyEditBtn" class="bg-gray-800 px-4 rounded-lg text-xs font-bold hover:bg-gray-700 transition">Edit</button>
                     </div>
                 </div>
 
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase">Model ID</label>
-                    <input id="modelId" type="text" class="w-full mt-1 bg-black/40 border border-gray-700 rounded-lg p-2.5 text-sm outline-none focus:border-blue-500">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Model Identifier</label>
+                    <input id="modelId" type="text" class="w-full mt-1 bg-black/40 border border-gray-700 rounded-lg p-2.5 text-sm outline-none focus:border-blue-500 transition font-mono text-blue-400">
                 </div>
 
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase">System Prompt (Instructions)</label>
-                    <textarea id="sysPrompt" rows="4" class="w-full mt-1 bg-black/40 border border-gray-700 rounded-lg p-2.5 text-sm outline-none focus:border-blue-500 resize-none"></textarea>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Global System Prompt</label>
+                    <textarea id="sysPrompt" rows="4" placeholder="Instruction for AI..." class="w-full mt-1 bg-black/40 border border-gray-700 rounded-lg p-2.5 text-sm outline-none focus:border-blue-500 resize-none transition"></textarea>
                 </div>
             </div>
             <div class="p-4 bg-gray-900/50 flex justify-end">
-                <button onclick="saveSettings()" class="bg-blue-600 px-8 py-2 rounded-xl text-sm font-bold shadow-lg">Save & Close</button>
+                <button onclick="saveSettings()" class="bg-blue-600 px-10 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:bg-blue-700 transition active:scale-95">Save Config</button>
             </div>
         </div>
     </div>
@@ -168,7 +177,7 @@
         window.onload = () => {
             document.getElementById('apiKey').value = localStorage.getItem('apiKey') || "";
             document.getElementById('modelId').value = localStorage.getItem('modelId') || "google/gemini-2.0-flash-lite-preview-02-05:free";
-            document.getElementById('sysPrompt').value = localStorage.getItem('sysPrompt') || "You are HvnChat, a helpful AI friend. Use markdown for code.";
+            document.getElementById('sysPrompt').value = localStorage.getItem('sysPrompt') || "You are HvnChat, a friendly and professional AI assistant. You solve problems and write high-quality code. Always use markdown for code blocks.";
             renderHistory();
             if(chats.length > 0) loadChat(chats[0].id);
             else createNewChat();
@@ -181,15 +190,11 @@
             const input = document.getElementById('apiKey');
             const btn = document.getElementById('keyEditBtn');
             if (input.readOnly) {
-                input.readOnly = false;
-                input.classList.remove('opacity-60');
-                btn.innerText = "Lock";
-                input.type = "text";
+                input.readOnly = false; input.classList.remove('opacity-50');
+                btn.innerText = "Lock"; input.type = "text";
             } else {
-                input.readOnly = true;
-                input.classList.add('opacity-60');
-                btn.innerText = "Edit";
-                input.type = "password";
+                input.readOnly = true; input.classList.add('opacity-50');
+                btn.innerText = "Edit"; input.type = "password";
             }
         }
 
@@ -200,23 +205,42 @@
             toggleSettings();
         }
 
-        function handleEnter(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
+        // Desktop: Enter to Send | Mobile: Enter to New Line
+        function handleKeyBehavior(e) {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+            if (e.key === 'Enter') {
+                if (isMobile) {
+                    // Mobile: Let enter create new line naturally
+                    return; 
+                } else {
+                    // Desktop: Enter sends, Shift+Enter new line
+                    if (!e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                }
             }
         }
 
-        async function handleFile(input) {
+        async function handleFileUpload(input) {
             const file = input.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('userInput').value += `\n[File: ${file.name}]\n${e.target.result}\n`;
-                document.getElementById('userInput').style.height = 'auto';
-                document.getElementById('userInput').style.height = document.getElementById('userInput').scrollHeight + 'px';
-            };
-            reader.readAsText(file);
+            
+            // Show attachment in input
+            const inputField = document.getElementById('userInput');
+            inputField.value += `\n[Attached File: ${file.name}]\n`;
+            
+            // Read if text-based, else just indicate name
+            if (file.type.startsWith('text/') || file.name.match(/\.(js|py|html|css|json|md|txt|php|cpp)$/)) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    inputField.value += `--- File Content ---\n${e.target.result}\n--- End ---\n`;
+                    inputField.style.height = inputField.scrollHeight + 'px';
+                };
+                reader.readAsText(file);
+            } else {
+                inputField.value += `(Binary file detected: ${file.type || 'unknown type'})\n`;
+            }
         }
 
         async function sendMessage() {
@@ -244,11 +268,13 @@
                 });
 
                 const data = await response.json();
-                const aiMsg = data.choices[0].message.content.trim(); // Trimmed leading/trailing spaces
+                if (data.error) throw new Error(data.error.message);
+                
+                const aiMsg = data.choices[0].message.content.trim();
                 appendMessage('assistant', aiMsg);
 
             } catch (err) {
-                alert("Error: " + err.message);
+                alert("HvnChat Error: " + err.message);
             } finally {
                 document.getElementById('thinking').classList.add('hidden');
             }
@@ -257,7 +283,7 @@
         function appendMessage(role, content) {
             const chatView = document.getElementById('chatView');
             const msgDiv = document.createElement('div');
-            msgDiv.className = `${role === 'user' ? 'user-msg' : 'ai-msg'} message`;
+            msgDiv.className = `${role === 'user' ? 'user-msg' : 'ai-msg'} message shadow-sm`;
             
             if (role === 'assistant') {
                 msgDiv.innerHTML = parseMarkdown(content);
@@ -279,10 +305,14 @@
                 return `
                     <div class="code-container">
                         <div class="code-header">
-                            <span>${lang || 'code'}</span>
-                            <div class="flex gap-3">
-                                <button onclick="copyCode('${id}')" class="flex items-center gap-1 hover:text-white transition"><i data-lucide="copy" class="w-3 h-3"></i> Copy</button>
-                                <button onclick="downloadCode('${id}')" class="flex items-center gap-1 hover:text-white transition"><i data-lucide="download" class="w-3 h-3"></i> Download</button>
+                            <span>${lang || 'Code'}</span>
+                            <div class="flex gap-4">
+                                <button onclick="copyCode('${id}', this)" class="flex items-center gap-1.5 hover:text-white transition active:scale-90">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span>Copy</span>
+                                </button>
+                                <button onclick="downloadCode('${id}')" class="flex items-center gap-1.5 hover:text-white transition active:scale-90">
+                                    <i data-lucide="download" class="w-3.5 h-3.5"></i> <span>Download</span>
+                                </button>
                             </div>
                         </div>
                         <pre class="code-content" id="${id}">${escapeHtml(code.trim())}</pre>
@@ -295,15 +325,27 @@
             return unsafe.replace(/[&<"']/g, m => ({'&':'&amp;','<':'&lt;','"':'&quot;',"'":"&#039;"}[m]));
         }
 
-        function copyCode(id) {
+        // Improved Copy for Mobile Support
+        function copyCode(id, btn) {
             const text = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = event.currentTarget;
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> Copied!';
-                lucide.createIcons();
-                setTimeout(() => { btn.innerHTML = originalText; lucide.createIcons(); }, 2000);
-            });
+            const span = btn.querySelector('span');
+            
+            const handleSuccess = () => {
+                span.innerText = "Copied!";
+                setTimeout(() => { span.innerText = "Copy"; }, 2000);
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(handleSuccess);
+            } else {
+                // Fallback for older mobile browsers
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try { document.execCommand('copy'); handleSuccess(); } catch (err) {}
+                document.body.removeChild(textArea);
+            }
         }
 
         function downloadCode(id) {
@@ -311,7 +353,7 @@
             const blob = new Blob([text], { type: 'text/plain' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'hvn-code-' + id.split('-')[1] + '.txt';
+            a.download = `hvn-code-${id.split('-')[1]}.txt`;
             a.click();
         }
 
@@ -327,9 +369,9 @@
         function renderHistory() {
             const list = document.getElementById('historyList');
             list.innerHTML = chats.map(c => `
-                <div onclick="loadChat(${c.id})" class="group flex items-center justify-between p-3 text-xs bg-gray-800/20 hover:bg-gray-800 rounded-xl cursor-pointer transition">
+                <div onclick="loadChat(${c.id})" class="group flex items-center justify-between p-3.5 text-xs bg-gray-800/20 hover:bg-gray-800 rounded-xl cursor-pointer transition border border-transparent hover:border-gray-700">
                     <span class="truncate pr-2 text-gray-400 group-hover:text-white font-medium">${c.title}</span>
-                    <button onclick="deleteChat(${c.id}, event)" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                    <button onclick="deleteChat(${c.id}, event)" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                 </div>
             `).join('');
             lucide.createIcons();
@@ -356,13 +398,13 @@
         function createNewChat() {
             currentChatId = Date.now();
             messages = [];
-            document.getElementById('chatView').innerHTML = '<div class="ai-msg message">Hello! How can I assist you today?</div>';
+            document.getElementById('chatView').innerHTML = '<div class="ai-msg message">HvnChat is ready! How can I help you today?</div>';
             if (window.innerWidth < 1024) toggleSidebar();
         }
 
         function deleteChat(id, e) {
             e.stopPropagation();
-            if (confirm("Delete chat?")) {
+            if (confirm("Permanently delete this chat?")) {
                 chats = chats.filter(c => c.id !== id);
                 localStorage.setItem('hvn_chats', JSON.stringify(chats));
                 if (currentChatId === id) createNewChat();
