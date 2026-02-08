@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,78 +8,214 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Prism.js for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
     <style>
         :root {
-            --bg: #0b0e14;
-            --sidebar: #0f1219;
-            --header-bg: #0b0e14;
-            --input-bg: #1e2530;
-            --text: #e5e7eb;
-            --border: #1f2937;
-            --ai-msg: #1e2530;
-            --settings-bg: #0f1219;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --sidebar-bg: rgba(15, 23, 42, 0.6);
+            --input-bg: rgba(30, 41, 59, 0.7);
+            --text: #e2e8f0;
+            --ai-msg-bg: rgba(30, 41, 59, 0.5);
+            --user-msg-bg: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         }
 
         .light-mode {
-            --bg: #ffffff;
-            --sidebar: #f3f4f6;
-            --header-bg: #ffffff;
-            --input-bg: #f9fafb;
-            --text: #1f2937;
-            --border: #e5e7eb;
-            --ai-msg: #f3f4f6;
-            --settings-bg: #ffffff;
+            --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: 1px solid rgba(0, 0, 0, 0.05);
+            --sidebar-bg: rgba(255, 255, 255, 0.7);
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --text: #1e293b;
+            --ai-msg-bg: rgba(255, 255, 255, 0.8);
+            --user-msg-bg: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         }
 
         body {
             height: 100dvh;
             display: flex;
             flex-direction: column;
-            background-color: var(--bg);
+            background: var(--bg-gradient);
             color: var(--text);
             font-family: 'Inter', sans-serif;
-            transition: all 0.2s ease;
+            overflow: hidden;
         }
 
-        header { height: 48px; border-bottom: 1px solid var(--border); background: var(--header-bg); }
-        aside { background: var(--sidebar); border-right: 1px solid var(--border); }
-        #settingsModal > div { background: var(--settings-bg); color: var(--text); border: 1px solid var(--border); }
+        .glass {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: var(--glass-border);
+        }
 
-        /* Dropdown Fix for Visibility */
-        select { background-color: var(--input-bg) !important; color: var(--text) !important; }
-        option { background-color: var(--sidebar); color: var(--text); padding: 10px; }
+        header {
+            height: 56px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--glass-border);
+        }
+
+        aside {
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(12px);
+            border-right: var(--glass-border);
+        }
 
         /* Chat View */
-        #chatView { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
-        .message { max-width: 90%; margin-bottom: 1.5rem; animation: fadeIn 0.3s ease; line-height: 1.6; position: relative; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
+        #chatView {
+            flex: 1;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 2rem;
+        }
 
-        .user-msg { align-self: flex-end; background: #2563eb; color: white; border-radius: 1.25rem 1.25rem 0.25rem 1.25rem; padding: 0.8rem 1.1rem; white-space: pre-wrap; }
-        .ai-msg { align-self: flex-start; background: var(--ai-msg); color: var(--text); border-radius: 1.25rem 1.25rem 1.25rem 0.25rem; padding: 0.8rem 1.1rem; width: fit-content; max-width: 95%; }
-        
-        .error-msg { border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .message {
+            max-width: 85%;
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.3s ease-out;
+            line-height: 1.7;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
 
-        .msg-actions { display: flex; gap: 8px; margin-top: 5px; opacity: 0.6; font-size: 0.8em; }
-        .msg-actions button:hover { color: #3b82f6; opacity: 1; }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.98);
+            }
 
-        /* Markdown & Code Blocks */
-        .ai-msg pre { background: #0d1117; color: #79c0ff; padding: 1rem; border-radius: 0.75rem; margin: 0.8rem 0; overflow-x: auto; position: relative; border: 1px solid #30363d; }
-        .code-header { background: #161b22; color: #8b949e; font-size: 0.75rem; padding: 0.5rem 1rem; display: flex; justify-content: space-between; border-radius: 0.75rem 0.75rem 0 0; margin-bottom: -0.8rem; border: 1px solid #30363d; border-bottom: none; }
-        .ai-msg code { font-family: 'Consolas', monospace; font-size: 0.9em; background: rgba(110, 118, 129, 0.2); padding: 0.2rem 0.4rem; border-radius: 6px; }
-        
-        /* Thinking Process Box */
-        details.thinking-box { background: rgba(100, 116, 139, 0.1); border-left: 3px solid #64748b; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 0.85em; color: #94a3b8; }
-        details.thinking-box summary { cursor: pointer; font-weight: bold; opacity: 0.8; user-select: none; }
-        details.thinking-box div { margin-top: 5px; white-space: pre-wrap; font-style: italic; }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
 
-        .cursor-blink::after { content: '▋'; margin-left: 2px; animation: blink 1s infinite; color: #3b82f6; font-size: 0.8em; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .user-msg {
+            align-self: flex-end;
+            background: var(--user-msg-bg);
+            color: white;
+            border-radius: 1.5rem 1.5rem 0.25rem 1.5rem;
+            padding: 1rem 1.25rem;
+        }
 
-        #fileIndicator { display: none; background: #2563eb; color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; margin-bottom: 8px; width: fit-content; font-weight: bold; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        .ai-msg {
+            align-self: flex-start;
+            background: var(--ai-msg-bg);
+            color: var(--text);
+            border-radius: 1.5rem 1.5rem 1.5rem 0.25rem;
+            padding: 1rem 1.5rem;
+            border: var(--glass-border);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Code Blocks (Prism Override) */
+        pre[class*="language-"] {
+            border-radius: 0.75rem;
+            margin: 1rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #0f1117 !important;
+            /* Darker bg for contrast */
+        }
+
+        code[class*="language-"] {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Math (KaTeX) */
+        .katex-display {
+            margin: 1em 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        /* Input Area */
+        .input-container {
+            background: var(--input-bg);
+            backdrop-filter: blur(16px);
+            border: var(--glass-border);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Image Preview */
+        .img-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            display: none;
+            object-fit: cover;
+        }
+
+        /* Stop Button */
+        #stopBtn {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            z-index: 50;
+            animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from {
+                transform: translateX(-50%) translateY(10px) scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(-50%) translateY(-10px) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.3);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.5);
+        }
+
+        details.thinking-box {
+            border-left: 3px solid #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
     </style>
 </head>
+
 <body class="dark-theme">
 
     <header class="flex items-center justify-between px-3 shrink-0 z-50">
@@ -86,7 +223,8 @@
             <button onclick="toggleSidebar()" class="p-1 hover:bg-blue-500/10 rounded-md transition text-[var(--text)]">
                 <i data-lucide="menu" class="w-5 h-5"></i>
             </button>
-            <h1 class="font-bold text-md tracking-tight">HvnChat <span class="text-xs bg-blue-600 text-white px-1 rounded">V6</span></h1>
+            <h1 class="font-bold text-md tracking-tight">HvnChat <span
+                    class="text-xs bg-blue-600 text-white px-1 rounded">V6</span></h1>
         </div>
         <button onclick="toggleTheme()" class="p-2 hover:bg-blue-500/10 rounded-full transition text-[var(--text)]">
             <i id="themeIcon" data-lucide="moon" class="w-5 h-5"></i>
@@ -94,21 +232,25 @@
     </header>
 
     <div class="flex flex-1 overflow-hidden relative">
-        <aside id="sidebar" class="absolute lg:relative z-40 w-64 h-full flex flex-col transition-transform -translate-x-full lg:translate-x-0">
+        <aside id="sidebar"
+            class="absolute lg:relative z-40 w-64 h-full flex flex-col transition-transform -translate-x-full lg:translate-x-0">
             <div class="p-3 pb-0">
                 <div class="flex items-center bg-black/20 border border-[var(--border)] rounded-xl px-2 py-1.5 mb-2">
                     <i data-lucide="search" class="w-4 h-4 text-gray-500 mr-2"></i>
-                    <input type="text" placeholder="Search history..." oninput="filterHistory(this.value)" class="bg-transparent w-full text-xs outline-none text-[var(--text)]">
+                    <input type="text" placeholder="Search history..." oninput="filterHistory(this.value)"
+                        class="bg-transparent w-full text-xs outline-none text-[var(--text)]">
                 </div>
-                <button onclick="createNewChat()" class="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 text-white shadow-lg transition">
+                <button onclick="createNewChat()"
+                    class="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 text-white shadow-lg transition">
                     <i data-lucide="plus-circle" class="w-4 h-4"></i> New Chat
                 </button>
             </div>
-            
+
             <div id="historyList" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
-            
+
             <div class="p-3 border-t border-[var(--border)]">
-                <button onclick="toggleSettings()" class="flex items-center gap-3 text-gray-500 w-full p-2 text-xs hover:text-[var(--text)] transition">
+                <button onclick="toggleSettings()"
+                    class="flex items-center gap-3 text-gray-500 w-full p-2 text-xs hover:text-[var(--text)] transition">
                     <i data-lucide="settings-2" class="w-4 h-4"></i> Settings
                 </button>
             </div>
@@ -119,30 +261,40 @@
 
             <footer class="p-3 md:p-6 bg-transparent">
                 <div class="max-w-4xl mx-auto">
-                    <div id="fileIndicator" class="flex items-center gap-2">
-                        <i data-lucide="file-check" class="w-3 h-3"></i> <span id="fileNameDisplay">File Ready</span>
-                        <button onclick="clearFile()" class="ml-2">×</button>
-                    </div>
-                    
-                    <div class="flex justify-between items-center px-2 mb-1">
-                        <span id="charCount" class="text-[10px] text-gray-500 font-mono opacity-0 transition">0 chars</span>
-                        <button id="clearInputBtn" onclick="clearInput()" class="text-[10px] text-red-400 hover:text-red-500 hidden">CLEAR</button>
-                    </div>
-
-                    <div class="flex items-end gap-2 bg-[var(--input-bg)] rounded-2xl p-2.5 border border-[var(--border)] focus-within:border-blue-500 shadow-xl transition-all">
-                        <label class="p-2.5 cursor-pointer hover:bg-blue-500/10 rounded-xl transition shrink-0">
-                            <i data-lucide="paperclip" class="w-5 h-5 text-gray-400"></i>
-                            <input type="file" id="fileInput" class="hidden" onchange="handleFileUpload(this)">
-                        </label>
-                        
-                        <textarea id="userInput" rows="1" placeholder="Ask HvnChat..." 
-                            class="flex-1 bg-transparent py-2.5 px-1 focus:outline-none resize-none text-sm text-[var(--text)] max-h-32 overflow-y-auto" 
-                            oninput="handleInput(this)"
-                            onkeydown="handleKeyAction(event)"></textarea>
-
-                        <button id="sendBtn" onclick="handleSendClick()" class="bg-blue-600 hover:bg-blue-700 p-2.5 rounded-xl text-white shadow-md active:scale-90 transition shrink-0 mb-0.5">
-                            <i id="sendIcon" data-lucide="send-horizontal" class="w-5 h-5"></i>
+                    <div class="relative max-w-4xl mx-auto">
+                        <!-- Stop Generation Button -->
+                        <button id="stopBtn" onclick="stopGeneration()">
+                            <i data-lucide="square" class="w-3 h-3 inline mr-1"></i> Stop Generation
                         </button>
+
+                        <div id="fileIndicator"
+                            class="flex items-center gap-2 backdrop-blur-md bg-blue-600/20 border border-blue-500/30">
+                            <i data-lucide="file-check" class="w-3 h-3"></i>
+                            <span id="fileNameDisplay">File Ready</span>
+                            <img id="imagePreviewMini" class="w-6 h-6 rounded object-cover hidden" />
+                            <button onclick="clearFile()" class="ml-2 hover:text-white">×</button>
+                        </div>
+
+                        <div class="input-container flex items-end gap-2 p-3 transition-all">
+                            <label class="p-2.5 cursor-pointer hover:bg-white/10 rounded-xl transition shrink-0 group">
+                                <i data-lucide="paperclip"
+                                    class="w-5 h-5 text-gray-400 group-hover:text-blue-400 transition"></i>
+                                <input type="file" id="fileInput" class="hidden" onchange="handleFileUpload(this)">
+                            </label>
+
+                            <textarea id="userInput" rows="1" placeholder="Ask HvnChat..."
+                                class="flex-1 bg-transparent py-2.5 px-2 focus:outline-none resize-none text-sm text-[var(--text)] max-h-40 overflow-y-auto"
+                                oninput="handleInput(this)" onkeydown="handleKeyAction(event)"></textarea>
+
+                            <button id="sendBtn" onclick="handleSendClick()"
+                                class="bg-blue-600 hover:bg-blue-700 p-2.5 rounded-xl text-white shadow-lg active:scale-95 transition shrink-0">
+                                <i id="sendIcon" data-lucide="send-horizontal" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div class="text-center mt-2">
+                            <span id="charCount" class="text-[10px] text-gray-500 font-mono opacity-0 transition">0
+                                chars</span>
+                        </div>
                     </div>
                 </div>
             </footer>
@@ -150,20 +302,26 @@
     </div>
 
     <!-- Settings Modal -->
-    <div id="settingsModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="w-full max-w-sm rounded-2xl shadow-2xl p-6 space-y-5 transition-all max-h-[90vh] overflow-y-auto bg-[var(--settings-bg)]">
+    <div id="settingsModal"
+        class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div
+            class="w-full max-w-sm rounded-2xl shadow-2xl p-6 space-y-5 transition-all max-h-[90vh] overflow-y-auto bg-[var(--settings-bg)]">
             <div class="flex justify-between items-center border-b border-[var(--border)] pb-3">
-                <h2 class="font-bold flex items-center gap-2 text-[var(--text)]"><i data-lucide="settings" class="text-blue-500"></i> Settings</h2>
+                <h2 class="font-bold flex items-center gap-2 text-[var(--text)]"><i data-lucide="settings"
+                        class="text-blue-500"></i> Settings</h2>
                 <button onclick="toggleSettings()"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
             </div>
-            
+
             <div class="space-y-4">
                 <!-- API Key -->
                 <div>
-                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">OpenRouter API Key</label>
+                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">OpenRouter API
+                        Key</label>
                     <div class="flex gap-2 mt-1">
-                        <input id="apiKey" type="password" readonly class="flex-1 bg-black/10 border border-[var(--border)] rounded-lg p-2.5 text-xs outline-none opacity-60 text-[var(--text)]">
-                        <button id="apiKeyBtn" onclick="toggleKeyField()" class="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-lg text-[10px] font-bold min-w-[50px]">EDIT</button>
+                        <input id="apiKey" type="password" readonly
+                            class="flex-1 bg-black/10 border border-[var(--border)] rounded-lg p-2.5 text-xs outline-none opacity-60 text-[var(--text)]">
+                        <button id="apiKeyBtn" onclick="toggleKeyField()"
+                            class="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-lg text-[10px] font-bold min-w-[50px]">EDIT</button>
                     </div>
                 </div>
 
@@ -171,35 +329,45 @@
                 <div>
                     <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Model List</label>
                     <div class="flex gap-2 mt-1 mb-2">
-                        <select id="modelSelect" onchange="updateModelInput()" class="flex-1 border border-[var(--border)] rounded-lg p-2 text-xs outline-none cursor-pointer">
+                        <select id="modelSelect" onchange="updateModelInput()"
+                            class="flex-1 border border-[var(--border)] rounded-lg p-2 text-xs outline-none cursor-pointer">
                             <!-- Options populated by JS -->
                         </select>
-                        <button onclick="deleteModel()" class="bg-red-500/10 text-red-500 px-2 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <button onclick="deleteModel()" class="bg-red-500/10 text-red-500 px-2 rounded-lg"><i
+                                data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                     <label class="text-[9px] text-gray-400">Add New Model ID:</label>
                     <div class="flex gap-2 mt-1">
-                        <input id="newModelInput" type="text" placeholder="e.g. google/gemini..." class="flex-1 bg-black/10 border border-[var(--border)] rounded-lg p-2 text-xs outline-none text-[var(--text)]">
-                        <button onclick="addModel()" class="bg-blue-500/10 text-blue-500 px-3 rounded-lg text-xs font-bold">ADD</button>
+                        <input id="newModelInput" type="text" placeholder="e.g. google/gemini..."
+                            class="flex-1 bg-black/10 border border-[var(--border)] rounded-lg p-2 text-xs outline-none text-[var(--text)]">
+                        <button onclick="addModel()"
+                            class="bg-blue-500/10 text-blue-500 px-3 rounded-lg text-xs font-bold">ADD</button>
                     </div>
                 </div>
 
                 <!-- System Prompt -->
                 <div>
-                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">System Instruction</label>
-                    <textarea id="sysPrompt" rows="3" class="w-full mt-1 bg-black/10 border border-[var(--border)] rounded-lg p-2.5 text-xs outline-none resize-none text-[var(--text)]"></textarea>
+                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">System
+                        Instruction</label>
+                    <textarea id="sysPrompt" rows="3"
+                        class="w-full mt-1 bg-black/10 border border-[var(--border)] rounded-lg p-2.5 text-xs outline-none resize-none text-[var(--text)]"></textarea>
                 </div>
 
                 <div class="pt-2 border-t border-[var(--border)] flex gap-2">
-                    <button onclick="exportData()" class="flex-1 bg-gray-500/10 hover:bg-gray-500/20 text-[var(--text)] py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                    <button onclick="exportData()"
+                        class="flex-1 bg-gray-500/10 hover:bg-gray-500/20 text-[var(--text)] py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
                         <i data-lucide="download" class="w-3 h-3"></i> Backup
                     </button>
-                    <label class="flex-1 bg-gray-500/10 hover:bg-gray-500/20 text-[var(--text)] py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer">
+                    <label
+                        class="flex-1 bg-gray-500/10 hover:bg-gray-500/20 text-[var(--text)] py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer">
                         <i data-lucide="upload" class="w-3 h-3"></i> Restore
                         <input type="file" class="hidden" onchange="importData(this)">
                     </label>
                 </div>
             </div>
-            <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl text-sm font-bold text-white shadow-lg transition">Save Configuration</button>
+            <button onclick="saveSettings()"
+                class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl text-sm font-bold text-white shadow-lg transition">Save
+                Configuration</button>
         </div>
     </div>
 
@@ -209,212 +377,156 @@
             "google/gemini-2.0-flash-lite-preview-02-05:free",
             "deepseek/deepseek-r1:free",
             "meta-llama/llama-3-8b-instruct:free",
-            "google/gemini-pro"
+            "google/gemini-pro-vision" // Added for vision support
         ];
         let savedModels = JSON.parse(localStorage.getItem('hvn_models') || JSON.stringify(defaultModels));
         let currentChatId = Date.now();
         let messages = [];
-        let pendingFileContent = "";
+        let pendingFileContent = ""; // For text files
+        let pendingImage = null;     // For images (Base64)
         let abortController = null;
         let isGenerating = false;
 
+        // Initialize Icons & Libraries
         lucide.createIcons();
+
+        // Configure Marked with Prism
+        marked.setOptions({
+            highlight: function (code, lang) {
+                if (Prism.languages[lang]) {
+                    return Prism.highlight(code, Prism.languages[lang], lang);
+                } else {
+                    return Prism.highlight(code, Prism.languages.plaintext, 'plaintext');
+                }
+            },
+            langPrefix: 'language-',
+            breaks: true,
+            gfm: true
+        });
+
         const renderer = new marked.Renderer();
         renderer.code = (code, lang) => {
-            const id = 'code-' + Math.random().toString(36).substr(2, 5);
-            return `<div class="code-header">
-                        <span>${lang || 'Code'}</span>
-                        <div class="flex gap-4">
-                            <button onclick="copyCode('${id}', this)" class="hover:text-blue-500 transition">Copy</button>
-                            <button onclick="downloadCode('${id}')" class="hover:text-blue-500 transition">Download</button>
-                        </div>
-                    </div>
-                    <pre id="${id}"><code>${code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>`;
+            const validLang = !!(lang && Prism.languages[lang]);
+            const languageClass = validLang ? `language-${lang}` : 'language-plaintext';
+            return `<pre class="${languageClass}"><div class="code-header"><span>${lang || 'Code'}</span><button onclick="copyCode(this)" class="text-xs hover:text-white">Copy</button></div><code class="${languageClass}">${code}</code></pre>`;
         };
-        marked.setOptions({ renderer, breaks: true, gfm: true });
+        marked.use({ renderer });
 
         window.onload = () => {
             document.getElementById('apiKey').value = localStorage.getItem('apiKey') || "";
-            document.getElementById('sysPrompt').value = localStorage.getItem('sysPrompt') || "You are HvnChat, a helpful AI friend.";
-            if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+            document.getElementById('sysPrompt').value = localStorage.getItem('sysPrompt') || "You are HvnChat, a helpful AI assistant.";
+            if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
             renderHistory();
             populateModelSelect();
-            createNewChat();
+            if (chats.length === 0) createNewChat();
+            else loadChat(chats[0].id);
         };
 
-        // --- Model Management ---
-        function populateModelSelect() {
-            const select = document.getElementById('modelSelect');
-            const currentModel = localStorage.getItem('modelId') || savedModels[0];
-            select.innerHTML = savedModels.map(m => `<option value="${m}" ${m === currentModel ? 'selected' : ''}>${m}</option>`).join('');
-            document.getElementById('newModelInput').value = currentModel;
-        }
+        // --- Core Logic ---
 
-        function updateModelInput() {
-            const val = document.getElementById('modelSelect').value;
-            document.getElementById('newModelInput').value = val;
-        }
-
-        function addModel() {
-            const val = document.getElementById('newModelInput').value.trim();
-            if(val && !savedModels.includes(val)) {
-                savedModels.push(val);
-                localStorage.setItem('hvn_models', JSON.stringify(savedModels));
-                populateModelSelect();
-                document.getElementById('modelSelect').value = val;
-            }
-        }
-
-        function deleteModel() {
-            const val = document.getElementById('modelSelect').value;
-            if(savedModels.length > 1) {
-                savedModels = savedModels.filter(m => m !== val);
-                localStorage.setItem('hvn_models', JSON.stringify(savedModels));
-                populateModelSelect();
-            } else { alert("Cannot delete the last model!"); }
-        }
-
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
-        function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
-        
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
-            document.getElementById('themeIcon').setAttribute('data-lucide', document.body.classList.contains('light-mode') ? 'sun' : 'moon');
-            lucide.createIcons();
-        }
-
-        function toggleKeyField() {
-            const el = document.getElementById('apiKey');
-            const btn = document.getElementById('apiKeyBtn');
-            if (el.readOnly) {
-                el.readOnly = false; el.type = "text"; el.classList.remove('opacity-60');
-                btn.innerText = "LOCK"; btn.className = "bg-red-500/10 text-red-500 px-3 py-1 rounded-lg text-[10px] font-bold min-w-[50px]";
-            } else {
-                el.readOnly = true; el.type = "password"; el.classList.add('opacity-60');
-                btn.innerText = "EDIT"; btn.className = "bg-blue-500/10 text-blue-500 px-3 py-1 rounded-lg text-[10px] font-bold min-w-[50px]";
-            }
-        }
-
-        function saveSettings() {
-            localStorage.setItem('apiKey', document.getElementById('apiKey').value);
-            localStorage.setItem('modelId', document.getElementById('modelSelect').value);
-            localStorage.setItem('sysPrompt', document.getElementById('sysPrompt').value);
-            toggleSettings();
-        }
-
-        function handleInput(textarea) {
-            textarea.style.height = 'auto'; 
-            textarea.style.height = textarea.scrollHeight + 'px';
-            
-            // Char count
-            const len = textarea.value.length;
-            const countEl = document.getElementById('charCount');
-            const clearBtn = document.getElementById('clearInputBtn');
-            
-            countEl.innerText = len + " chars";
-            countEl.classList.toggle('opacity-0', len === 0);
-            clearBtn.style.display = len > 0 ? 'block' : 'none';
-        }
-
-        function clearInput() {
-            const input = document.getElementById('userInput');
-            input.value = "";
-            handleInput(input);
-            input.focus();
-        }
-
-        // --- Export / Import ---
-        function exportData() {
-            const dataStr = JSON.stringify(chats, null, 2);
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `hvnchat_backup_${Date.now()}.json`;
-            a.click();
-        }
-
-        function importData(input) {
+        function handleFileUpload(input) {
             const file = input.files[0];
-            if(!file) return;
+            if (!file) return;
+
+            const isImage = file.type.startsWith('image/');
             const reader = new FileReader();
+
             reader.onload = (e) => {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if(Array.isArray(imported)) {
-                        chats = imported;
-                        localStorage.setItem('hvn_chats', JSON.stringify(chats));
-                        renderHistory();
-                        createNewChat();
-                        alert("Chat history restored successfully!");
-                    }
-                } catch(err) { alert("Invalid backup file!"); }
+                const result = e.target.result;
+
+                if (isImage) {
+                    pendingImage = result; // Base64 Data URL
+                    pendingFileContent = "";
+                    document.getElementById('imagePreviewMini').src = result;
+                    document.getElementById('imagePreviewMini').classList.remove('hidden');
+                } else {
+                    pendingFileContent = `\n[File: ${file.name}]\n\`\`\`\n${result}\n\`\`\`\n`;
+                    pendingImage = null;
+                    document.getElementById('imagePreviewMini').classList.add('hidden');
+                }
+
+                document.getElementById('fileNameDisplay').innerText = file.name;
+                document.getElementById('fileIndicator').style.display = "flex";
             };
-            reader.readAsText(file);
+
+            if (isImage) reader.readAsDataURL(file);
+            else reader.readAsText(file);
         }
 
-        function filterHistory(query) {
-            const list = document.getElementById('historyList');
-            const q = query.toLowerCase();
-            const filtered = chats.filter(c => c.title.toLowerCase().includes(q));
-            
-            list.innerHTML = filtered.map(c => `
-                <div onclick="loadChat(${c.id})" class="flex items-center justify-between p-3 text-[11px] hover:bg-blue-500/10 rounded-xl cursor-pointer group transition">
-                    <span class="truncate pr-2 group-hover:text-blue-500">${c.title}</span>
-                    <i data-lucide="trash-2" onclick="deleteChat(${c.id}, event)" class="w-3.5 h-3.5 text-red-500 opacity-0 group-hover:opacity-100 transition"></i>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        function handleSendClick() {
-            if (isGenerating) {
-                if (abortController) abortController.abort();
-                isGenerating = false;
-                document.getElementById('sendIcon').setAttribute('data-lucide', 'send-horizontal');
-                lucide.createIcons();
-                const lastMsg = document.querySelector('.cursor-blink');
-                if(lastMsg) lastMsg.classList.remove('cursor-blink');
-            } else {
-                sendMessage();
-            }
+        function clearFile() {
+            pendingFileContent = "";
+            pendingImage = null;
+            document.getElementById('fileIndicator').style.display = "none";
+            document.getElementById('fileInput').value = "";
+            document.getElementById('imagePreviewMini').classList.add('hidden');
         }
 
         async function sendMessage() {
             const input = document.getElementById('userInput');
             const userText = input.value.trim();
             const apiKey = localStorage.getItem('apiKey');
-            
-            if (!userText && !pendingFileContent) return;
-            if (!apiKey) { alert("Please add API Key in Settings!"); toggleSettings(); return; }
 
-            const fullPrompt = userText + pendingFileContent;
-            appendMessage('user', userText || "Shared a file");
-            
-            clearInput(); // Resets box and counter
+            if (!userText && !pendingFileContent && !pendingImage) return;
+            if (!apiKey) { alert("Please set API Key in Settings!"); toggleSettings(); return; }
+
+            // 1. Build User Message Content
+            let messageContent;
+
+            // If image is present, switch to array content format (Multimodal)
+            if (pendingImage) {
+                messageContent = [
+                    { type: "text", text: userText || "Analyze this image." },
+                    { type: "image_url", image_url: { url: pendingImage } }
+                ];
+            } else {
+                messageContent = userText + pendingFileContent;
+            }
+
+            // UI Update
+            appendMessage('user', userText || (pendingImage ? "[Sent an Image]" : "[Sent a File]"));
+
+            clearInput();
+            const prevImage = pendingImage; // Keep ref for history
             clearFile();
 
-            isGenerating = true;
-            document.getElementById('sendIcon').setAttribute('data-lucide', 'square');
-            lucide.createIcons();
-            
-            abortController = new AbortController();
+            // Start Generation State
+            startGenerationState();
 
+            abortController = new AbortController();
             const aiMsgDiv = appendMessage('assistant', "...");
             const aiContentSpan = aiMsgDiv.querySelector('.ai-content');
             aiContentSpan.classList.add('cursor-blink');
-            
+
             let fullAiResponse = "";
 
             try {
+                // Construct Messages Array
+                const historyForApi = messages.map(m => {
+                    // Start with simple text
+                    let content = m.content;
+
+                    // Note: Ideally we should store the structured content in history, 
+                    // but for simplicity in this single-file app, we might store text representation 
+                    // or implement a better history structure later. 
+                    // For now, we send text history to keep context simple unless it's the current message.
+                    return { role: m.role, content: content };
+                });
+
+                // Add current message
+                historyForApi.push({ role: "user", content: messageContent });
+
+                // Fetch
                 const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': 'https://hvnchat.local',
+                    },
                     body: JSON.stringify({
                         model: localStorage.getItem('modelId'),
-                        messages: [{role: "system", content: localStorage.getItem('sysPrompt')}, ...messages, {role: "user", content: fullPrompt}],
-                        stream: true 
+                        messages: [{ role: "system", content: localStorage.getItem('sysPrompt') }, ...historyForApi],
+                        stream: true
                     }),
                     signal: abortController.signal
                 });
@@ -423,15 +535,15 @@
 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
-                aiContentSpan.innerText = ""; 
+                aiContentSpan.innerText = "";
 
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    
+
                     const chunk = decoder.decode(value);
                     const lines = chunk.split('\n');
-                    
+
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             const data = line.slice(6);
@@ -439,60 +551,104 @@
                             try {
                                 const parsed = JSON.parse(data);
                                 const content = parsed.choices[0].delta.content || "";
-                                // Only DeepSeek R1 outputs <think> usually
                                 fullAiResponse += content;
-                                aiContentSpan.innerText = fullAiResponse; 
-                                document.getElementById('chatView').scrollTop = document.getElementById('chatView').scrollHeight;
-                            } catch (e) {}
+                                aiContentSpan.innerHTML = formatResponse(fullAiResponse);
+                                autoScroll();
+                            } catch (e) { }
                         }
                     }
                 }
-                
-                // Process output to format <think> tags if present
-                const formattedResponse = formatThinkingProcess(fullAiResponse);
-                aiContentSpan.innerHTML = formattedResponse;
-                
+
+                // Final Render with Prism & Math
+                aiContentSpan.innerHTML = formatResponse(fullAiResponse);
+                postProcessMessage(aiMsgDiv);
+
+                // Save formatted simple text to history for consistency (or complex obj if upgraded)
                 messages.push({ role: "assistant", content: fullAiResponse });
+                if (prevImage) messages[messages.length - 2].hasImage = true; // Flag for history UI
+
                 saveToHistory();
 
             } catch (err) {
                 if (err.name === 'AbortError') {
-                    aiContentSpan.innerHTML = formatThinkingProcess(fullAiResponse) + " <br><em class='text-xs text-orange-400'>(Stopped by user)</em>";
+                    aiContentSpan.innerHTML = formatResponse(fullAiResponse) + " <br><em class='text-xs text-orange-400'>(Stopped by user)</em>";
                     messages.push({ role: "assistant", content: fullAiResponse });
-                    saveToHistory();
                 } else {
                     aiMsgDiv.classList.add('error-msg');
                     aiContentSpan.innerHTML = `<strong>⚠️ Error:</strong> ${err.message}`;
                 }
             } finally {
-                isGenerating = false;
-                aiContentSpan.classList.remove('cursor-blink');
-                document.getElementById('sendIcon').setAttribute('data-lucide', 'send-horizontal');
-                lucide.createIcons();
-                abortController = null;
+                endGenerationState();
             }
         }
 
-        // New function to handle DeepSeek Thinking tags
-        function formatThinkingProcess(text) {
-            // Regex to find <think>...</think> and replace with details/summary
-            return marked.parse(text.replace(
-                /<think>([\s\S]*?)<\/think>/gi, 
+        function formatResponse(text) {
+            // 1. Handle Thinking Tags
+            let formatted = text.replace(
+                /<think>([\s\S]*?)<\/think>/gi,
                 `<details class="thinking-box"><summary>Thinking Process...</summary><div>$1</div></details>`
-            ));
+            );
+            // 2. Markdown
+            return marked.parse(formatted);
+        }
+
+        function postProcessMessage(element) {
+            // Highlight Code
+            Prism.highlightAllUnder(element);
+
+            // Render Math
+            renderMathInElement(element, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false },
+                    { left: '\\(', right: '\\)', display: false },
+                    { left: '\\[', right: '\\]', display: true }
+                ],
+                throwOnError: false
+            });
+        }
+
+        function autoScroll() {
+            const view = document.getElementById('chatView');
+            // Check if user is near bottom
+            if (view.scrollHeight - view.scrollTop - view.clientHeight < 100) {
+                view.scrollTop = view.scrollHeight;
+            }
+        }
+
+        function startGenerationState() {
+            isGenerating = true;
+            document.getElementById('stopBtn').style.display = 'block';
+            document.getElementById('sendIcon').classList.add('opacity-0'); // Hide send icon visually
+        }
+
+        function endGenerationState() {
+            isGenerating = false;
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('sendIcon').classList.remove('opacity-0');
+
+            const blinker = document.querySelector('.cursor-blink');
+            if (blinker) blinker.classList.remove('cursor-blink');
+
+            lucide.createIcons();
+            abortController = null;
+        }
+
+        function stopGeneration() {
+            if (abortController) abortController.abort();
         }
 
         function appendMessage(role, content) {
             const view = document.getElementById('chatView');
             const div = document.createElement('div');
             div.className = `${role === 'user' ? 'user-msg' : 'ai-msg'} message`;
-            
+
             if (role === 'assistant') {
                 const id = 'msg-' + Date.now();
                 div.innerHTML = `
-                    <div id="${id}" class="ai-content">${marked.parse(content)}</div>
+                    <div id="${id}" class="ai-content">${formatResponse(content)}</div>
                     <div class="msg-actions">
-                        <button onclick="speakText('${id}', this)"><i data-lucide="volume-2" class="w-4 h-4"></i></button>
+                        <button onclick="copyText('${id}')"><i data-lucide="copy" class="w-3 h-3"></i></button>
                     </div>
                 `;
             } else {
@@ -506,123 +662,180 @@
             return div;
         }
 
-        function speakText(elementId, btn) {
-            if (window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-                return;
-            }
-            // Strip HTML tags for reading
-            const tempDiv = document.createElement("div");
-            tempDiv.innerHTML = document.getElementById(elementId).innerHTML;
-            const text = tempDiv.textContent || tempDiv.innerText;
+        // --- Helper Functions ---
 
-            const utterance = new SpeechSynthesisUtterance(text);
-            const voices = window.speechSynthesis.getVoices();
-            const preferred = voices.find(v => v.lang.includes('en') && v.name.includes('Google')) || voices[0];
-            if(preferred) utterance.voice = preferred;
+        function handleInput(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+            document.getElementById('charCount').innerText = textarea.value.length + " chars";
+            document.getElementById('charCount').classList.toggle('opacity-0', textarea.value.length === 0);
+        }
 
-            window.speechSynthesis.speak(utterance);
+        function clearInput() {
+            const input = document.getElementById('userInput');
+            input.value = "";
+            handleInput(input);
+            input.focus();
+        }
+
+        function handleSendClick() {
+            if (isGenerating) stopGeneration();
+            else sendMessage();
         }
 
         function handleKeyAction(e) {
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
+            if (e.key === 'Enter' && !e.shiftKey && !/iPhone|iPad|Android/i.test(navigator.userAgent)) {
                 e.preventDefault();
                 handleSendClick();
             }
         }
 
-        function handleFileUpload(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                pendingFileContent = `\n[Attached File: ${file.name}]\n--- CONTENT START ---\n${e.target.result}\n--- CONTENT END ---\n`;
-                document.getElementById('fileNameDisplay').innerText = file.name;
-                document.getElementById('fileIndicator').style.display = "flex";
-            };
-            reader.readAsText(file);
-        }
-
-        function clearFile() {
-            pendingFileContent = "";
-            document.getElementById('fileIndicator').style.display = "none";
-            document.getElementById('fileInput').value = "";
-        }
-
-        function copyCode(id, btn) {
+        function copyText(id) {
             const text = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = btn.innerText;
-                btn.innerText = "Copied!";
-                setTimeout(() => btn.innerText = originalText, 2000);
-            });
+            navigator.clipboard.writeText(text);
         }
 
-        function downloadCode(id) {
-            const text = document.getElementById(id).innerText;
-            const blob = new Blob([text], {type: 'text/plain'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'hvn-code-' + Date.now() + '.txt';
-            a.click();
+        function copyCode(btn) {
+            const code = btn.closest('pre').querySelector('code').innerText;
+            navigator.clipboard.writeText(code);
+            const original = btn.innerText;
+            btn.innerText = "Copied!";
+            setTimeout(() => btn.innerText = original, 2000);
         }
 
+        // --- Reused & Utility ---
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
+        function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
+        function toggleKeyField() {
+            const el = document.getElementById('apiKey');
+            el.type = el.type === 'password' ? 'text' : 'password';
+        }
+        function saveSettings() {
+            localStorage.setItem('apiKey', document.getElementById('apiKey').value);
+            localStorage.setItem('modelId', document.getElementById('modelSelect').value);
+            localStorage.setItem('sysPrompt', document.getElementById('sysPrompt').value);
+            toggleSettings();
+        }
+
+        // Model functions
+        function populateModelSelect() {
+            const select = document.getElementById('modelSelect');
+            const currentModel = localStorage.getItem('modelId') || savedModels[0];
+            select.innerHTML = savedModels.map(m => `<option value="${m}" ${m === currentModel ? 'selected' : ''}>${m}</option>`).join('');
+            document.getElementById('newModelInput').value = currentModel;
+        }
+        function addModel() {
+            const val = document.getElementById('newModelInput').value.trim();
+            if (val && !savedModels.includes(val)) {
+                savedModels.push(val);
+                localStorage.setItem('hvn_models', JSON.stringify(savedModels));
+                populateModelSelect();
+                document.getElementById('modelSelect').value = val;
+            }
+        }
+        function deleteModel() {
+            const val = document.getElementById('modelSelect').value;
+            if (savedModels.length > 1) {
+                savedModels = savedModels.filter(m => m !== val);
+                localStorage.setItem('hvn_models', JSON.stringify(savedModels));
+                populateModelSelect();
+            }
+        }
+        function updateModelInput() { document.getElementById('newModelInput').value = document.getElementById('modelSelect').value; }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+            document.getElementById('themeIcon').setAttribute('data-lucide', document.body.classList.contains('light-mode') ? 'sun' : 'moon');
+            lucide.createIcons();
+        }
+
+        // History Management
         function saveToHistory() {
             const idx = chats.findIndex(c => c.id === currentChatId);
             const titleText = messages[0] ? (messages[0].content.length > 25 ? messages[0].content.substring(0, 25) + "..." : messages[0].content) : "New Chat";
             const chatObj = { id: currentChatId, title: titleText, messages: [...messages] };
             if (idx > -1) chats[idx] = chatObj; else chats.unshift(chatObj);
             localStorage.setItem('hvn_chats', JSON.stringify(chats));
-            filterHistory(document.querySelector('input[placeholder="Search history..."]').value || "");
+            renderHistory();
         }
 
+        function filterHistory(query) {
+            const list = document.getElementById('historyList');
+            const q = (query || "").toLowerCase();
+            const filtered = chats.filter(c => c.title.toLowerCase().includes(q));
+
+            list.innerHTML = filtered.map(c => `
+                <div onclick="loadChat(${c.id})" class="flex items-center justify-between p-3 text-[11px] hover:bg-blue-500/10 rounded-xl cursor-pointer group transition ${c.id === currentChatId ? 'bg-blue-600/10 text-blue-400' : ''}">
+                    <span class="truncate pr-2">${c.title}</span>
+                    <i data-lucide="trash-2" onclick="deleteChat(${c.id}, event)" class="w-3.5 h-3.5 text-red-500 opacity-0 group-hover:opacity-100 transition"></i>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
         function renderHistory() { filterHistory(""); }
 
         function loadChat(id) {
             const chat = chats.find(c => c.id === id);
+            if (!chat) return;
             currentChatId = id; messages = [...chat.messages];
             const view = document.getElementById('chatView'); view.innerHTML = '';
             messages.forEach(m => {
-                const div = document.createElement('div');
-                div.className = `${m.role === 'user' ? 'user-msg' : 'ai-msg'} message`;
-                if(m.role === 'user') {
-                    div.innerText = m.content;
-                } else {
-                    const msgId = 'msg-' + Math.random().toString(36).substr(2, 5);
-                    const parsedContent = formatThinkingProcess(m.content);
-                    div.innerHTML = `
-                        <div id="${msgId}" class="ai-content">${parsedContent}</div>
-                        <div class="msg-actions">
-                            <button onclick="speakText('${msgId}', this)"><i data-lucide="volume-2" class="w-4 h-4"></i></button>
-                        </div>
-                    `;
-                }
-                view.appendChild(div);
+                const div = appendMessage(m.role, typeof m.content === 'string' ? m.content : "[Legacy/Complex Content]");
+                if (m.role === 'assistant') postProcessMessage(div);
             });
-            view.scrollTop = view.scrollHeight;
-            lucide.createIcons();
-            if (window.innerWidth < 1024) toggleSidebar();
+            renderHistory(); // update active styling
+            if (window.innerWidth < 1024) document.getElementById('sidebar').classList.add('-translate-x-full');
         }
 
         function createNewChat() {
             currentChatId = Date.now(); messages = [];
-            document.getElementById('chatView').innerHTML = `<div class="ai-msg message">
-                <p><strong>HvnChat Ultra V6</strong> এ স্বাগতম! 🖤</p>
-                <p>Model selection fixed & Thinking process added.</p>
+            const view = document.getElementById('chatView');
+            view.innerHTML = `<div class="ai-msg message backdrop-blur-md bg-white/5 border border-white/10 p-6 rounded-2xl">
+                <h3 class="font-bold text-lg mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">HvnChat Ultra V7</h3>
+                <p class="text-sm opacity-80">🔥 <strong>New Features:</strong></p>
+                <ul class="text-sm list-disc pl-5 mt-2 space-y-1 opacity-70">
+                    <li>Syntax Highlighting (Prism.js)</li>
+                    <li>Math & LaTeX Support (KaTeX: $E=mc^2$)</li>
+                    <li>Vision Support (Upload Images!)</li>
+                    <li>Glassmorphism UI</li>
+                </ul>
             </div>`;
-            clearInput();
+            renderHistory();
         }
 
         function deleteChat(id, e) {
             e.stopPropagation();
-            if(confirm("Delete this chat?")) {
+            if (confirm("Delete this chat?")) {
                 chats = chats.filter(c => c.id !== id);
                 localStorage.setItem('hvn_chats', JSON.stringify(chats));
                 if (currentChatId === id) createNewChat();
-                renderHistory();
+                else renderHistory();
             }
+        }
+
+        // Export/Import
+        function exportData() {
+            const blob = new Blob([JSON.stringify(chats, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hvnchat_backup_${Date.now()}.json`;
+            a.click();
+        }
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                chats = JSON.parse(e.target.result);
+                localStorage.setItem('hvn_chats', JSON.stringify(chats));
+                renderHistory();
+                createNewChat();
+            };
+            reader.readAsText(file);
         }
     </script>
 </body>
+
 </html>
