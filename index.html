@@ -379,4 +379,35 @@
                 div.className = `${m.role === 'user' ? 'user-msg' : 'ai-msg'} message`;
                 if(m.role === 'user') {
                     div.style.whiteSpace = "pre-wrap";
+                    div.innerText = m.content;
+                } else {
+                    div.innerHTML = `<div class="ai-content">${marked.parse(m.content)}</div>`;
+                }
+                view.appendChild(div);
+            });
+            view.scrollTop = view.scrollHeight;
+            lucide.createIcons();
+            if (window.innerWidth < 1024) toggleSidebar();
+        }
+
+        function createNewChat() {
+            currentChatId = Date.now(); messages = [];
+            document.getElementById('chatView').innerHTML = `<div class="ai-msg message">
+                <p><strong>HvnChat Ultra V3</strong> এ স্বাগতম! 🖤</p>
+                <p>আমি এখন আগের চেয়েও ফাস্ট এবং স্মার্ট।</p>
+            </div>`;
+        }
+
+        function deleteChat(id, e) {
+            e.stopPropagation();
+            if(confirm("Delete this chat?")) {
+                chats = chats.filter(c => c.id !== id);
+                localStorage.setItem('hvn_chats', JSON.stringify(chats));
+                if (currentChatId === id) createNewChat();
+                renderHistory();
+            }
+        }
+    </script>
+</body>
+</html>
                  
