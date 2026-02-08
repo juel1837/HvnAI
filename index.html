@@ -12,7 +12,8 @@
     <!-- Prism.js & KaTeX -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
@@ -51,19 +52,108 @@
         }
 
         /* Sidebar */
-        aside { background: var(--sidebar-bg); border-right: var(--glass-border); transition: transform 0.3s ease; z-index: 50; }
-        @media (min-width: 1024px) { aside { position: relative; transform: translateX(0); width: 16rem; } aside.closed { width: 0; padding: 0; overflow: hidden; border: none; } }
-        @media (max-width: 1024px) { aside { position: fixed; top: 0; left: 0; height: 100%; width: 280px; transform: translateX(-100%); } aside.open { transform: translateX(0); } #mobileOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 40; display: none; backdrop-filter: blur(3px); } #mobileOverlay.active { display: block; } }
+        aside {
+            background: var(--sidebar-bg);
+            border-right: var(--glass-border);
+            transition: transform 0.3s ease;
+            z-index: 50;
+        }
 
-        header { height: 50px; background: var(--glass-bg); backdrop-filter: blur(10px); border-bottom: var(--glass-border); }
+        @media (min-width: 1024px) {
+            aside {
+                position: relative;
+                transform: translateX(0);
+                width: 16rem;
+            }
+
+            aside.closed {
+                width: 0;
+                padding: 0;
+                overflow: hidden;
+                border: none;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            aside {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 280px;
+                transform: translateX(-100%);
+            }
+
+            aside.open {
+                transform: translateX(0);
+            }
+
+            #mobileOverlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 40;
+                display: none;
+                backdrop-filter: blur(3px);
+            }
+
+            #mobileOverlay.active {
+                display: block;
+            }
+        }
+
+        header {
+            height: 50px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--glass-border);
+        }
 
         /* Chat View */
-        #chatView { flex: 1; overflow-y: auto; scroll-behavior: smooth; padding-bottom: 0.5rem; }
-        .message { max-width: 85%; margin-bottom: 1rem; animation: slideIn 0.3s ease-out; line-height: 1.6; position: relative; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #chatView {
+            flex: 1;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 0.5rem;
+        }
 
-        .user-msg { align-self: flex-end; background: var(--user-msg-bg); color: white; border-radius: 1.25rem 1.25rem 0.25rem 1.25rem; padding: 0.8rem 1rem; }
-        .ai-msg { align-self: flex-start; background: var(--ai-msg-bg); color: var(--text); border-radius: 1.25rem 1.25rem 1.25rem 0.25rem; padding: 0.8rem 1rem; border: var(--glass-border); min-width: 150px; }
+        .message {
+            max-width: 85%;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease-out;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-msg {
+            align-self: flex-end;
+            background: var(--user-msg-bg);
+            color: white;
+            border-radius: 1.25rem 1.25rem 0.25rem 1.25rem;
+            padding: 0.8rem 1rem;
+        }
+
+        .ai-msg {
+            align-self: flex-start;
+            background: var(--ai-msg-bg);
+            color: var(--text);
+            border-radius: 1.25rem 1.25rem 1.25rem 0.25rem;
+            padding: 0.8rem 1rem;
+            border: var(--glass-border);
+            min-width: 150px;
+        }
 
         /* Footer inside AI Message */
         .msg-footer {
@@ -75,31 +165,146 @@
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             font-size: 0.75rem;
         }
-        .msg-actions { display: flex; gap: 8px; }
-        .msg-actions button { opacity: 0.5; transition: 0.2s; padding: 2px; }
-        .msg-actions button:hover { opacity: 1; color: #60a5fa; background: rgba(255,255,255,0.05); border-radius: 4px; }
-        .model-tag { opacity: 0.3; font-family: monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; max-width: 120px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+
+        .msg-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .msg-actions button {
+            opacity: 0.5;
+            transition: 0.2s;
+            padding: 2px;
+        }
+
+        .msg-actions button:hover {
+            opacity: 1;
+            color: #60a5fa;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .model-tag {
+            opacity: 0.3;
+            font-family: monospace;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            max-width: 120px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
 
         /* Code Blocks */
-        pre { border-radius: 0.5rem; margin: 0.8rem 0; border: 1px solid rgba(255, 255, 255, 0.1); background: #1e1e1e !important; overflow-x: auto; }
-        .code-header { display: flex; justify-content: space-between; padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.7rem; color: #94a3b8; }
-        code { font-family: 'Fira Code', monospace; font-size: 0.85em; }
+        pre {
+            border-radius: 0.5rem;
+            margin: 0.8rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #1e1e1e !important;
+            overflow-x: auto;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85em;
+        }
 
         /* Input Area */
-        .input-container { background: var(--input-bg); backdrop-filter: blur(16px); border: var(--glass-border); border-radius: 1.2rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); }
-        
-        #filePreviewArea { display: flex; gap: 10px; padding: 5px 10px; overflow-x: auto; white-space: nowrap; margin-bottom: 5px; min-height: 0; }
-        .file-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 6px 10px; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text); }
-        .file-card img { width: 30px; height: 30px; border-radius: 4px; object-fit: cover; }
-        .file-card .remove-btn { margin-left: auto; cursor: pointer; color: #ef4444; }
+        .input-container {
+            background: var(--input-bg);
+            backdrop-filter: blur(16px);
+            border: var(--glass-border);
+            border-radius: 1.2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
 
-        details.thinking-box { border-left: 2px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 8px; border-radius: 6px; margin-bottom: 8px; font-size: 0.8em; color: #94a3b8; }
-        .cursor-blink::after { content: '▋'; margin-left: 2px; animation: blink 1s infinite; color: #3b82f6; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); border-radius: 10px; }
+        #filePreviewArea {
+            display: flex;
+            gap: 10px;
+            padding: 5px 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 5px;
+            min-height: 0;
+        }
+
+        .file-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text);
+        }
+
+        .file-card img {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .file-card .remove-btn {
+            margin-left: auto;
+            cursor: pointer;
+            color: #ef4444;
+        }
+
+        details.thinking-box {
+            border-left: 2px solid #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 0.8em;
+            color: #94a3b8;
+        }
+
+        .cursor-blink::after {
+            content: '▋';
+            margin-left: 2px;
+            animation: blink 1s infinite;
+            color: #3b82f6;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.3);
+            border-radius: 10px;
+        }
     </style>
 </head>
 
@@ -112,7 +317,8 @@
             <button onclick="toggleSidebar()" class="p-1 hover:bg-blue-500/10 rounded-md transition text-[var(--text)]">
                 <i data-lucide="menu" class="w-5 h-5"></i>
             </button>
-            <h1 class="font-bold text-md tracking-tight">HvnChat <span class="text-[9px] bg-blue-600 text-white px-1 rounded align-top">V2.1</span></h1>
+            <h1 class="font-bold text-md tracking-tight">HvnChat <span
+                    class="text-[9px] bg-blue-600 text-white px-1 rounded align-top">V2.1</span></h1>
         </div>
         <button onclick="toggleTheme()" class="p-2 hover:bg-blue-500/10 rounded-full transition text-[var(--text)]">
             <i id="themeIcon" data-lucide="moon" class="w-5 h-5"></i>
@@ -122,7 +328,8 @@
     <div class="flex flex-1 overflow-hidden relative">
         <aside id="sidebar" class="flex flex-col transition-all duration-300">
             <div class="p-3 pb-0">
-                <div class="flex items-center bg-black/20 border border-[var(--glass-border)] rounded-xl px-2 py-1.5 mb-2">
+                <div
+                    class="flex items-center bg-black/20 border border-[var(--glass-border)] rounded-xl px-2 py-1.5 mb-2">
                     <i data-lucide="search" class="w-4 h-4 text-gray-500 mr-2"></i>
                     <input type="text" placeholder="Search history..." oninput="filterHistory(this.value)"
                         class="bg-transparent w-full text-xs outline-none text-[var(--text)]">
@@ -157,7 +364,8 @@
 
                     <div class="input-container flex items-end gap-2 p-2 transition-all">
                         <label class="p-2 cursor-pointer hover:bg-white/10 rounded-xl transition shrink-0 group">
-                            <i data-lucide="paperclip" class="w-5 h-5 text-gray-400 group-hover:text-blue-400 transition"></i>
+                            <i data-lucide="paperclip"
+                                class="w-5 h-5 text-gray-400 group-hover:text-blue-400 transition"></i>
                             <input type="file" id="fileInput" class="hidden" onchange="handleFileUpload(this)">
                         </label>
 
@@ -170,11 +378,13 @@
                             <i id="sendIcon" data-lucide="send-horizontal" class="w-5 h-5 transition-all"></i>
                         </button>
                     </div>
-                    
+
                     <!-- DISCLAIMER -->
                     <div class="text-center mt-1.5 flex justify-center items-center gap-2">
-                         <p class="text-[10px] text-gray-500/80 font-medium">AI can make mistakes. Please check important info.</p>
-                         <span id="charCount" class="text-[9px] text-gray-600 font-mono opacity-0 transition hidden">0</span>
+                        <p class="text-[10px] text-gray-500/80 font-medium">AI can make mistakes. Please check important
+                            info.</p>
+                        <span id="charCount"
+                            class="text-[9px] text-gray-600 font-mono opacity-0 transition hidden">0</span>
                     </div>
                 </div>
             </footer>
@@ -182,16 +392,20 @@
     </div>
 
     <!-- Settings Modal -->
-    <div id="settingsModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="w-full max-w-sm rounded-2xl shadow-2xl p-6 space-y-5 transition-all max-h-[90vh] overflow-y-auto bg-[var(--sidebar-bg)] border border-[var(--glass-border)]">
+    <div id="settingsModal"
+        class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div
+            class="w-full max-w-sm rounded-2xl shadow-2xl p-6 space-y-5 transition-all max-h-[90vh] overflow-y-auto bg-[var(--sidebar-bg)] border border-[var(--glass-border)]">
             <div class="flex justify-between items-center border-b border-[var(--glass-border)] pb-3">
-                <h2 class="font-bold flex items-center gap-2 text-[var(--text)]"><i data-lucide="settings" class="text-blue-500"></i> Settings</h2>
+                <h2 class="font-bold flex items-center gap-2 text-[var(--text)]"><i data-lucide="settings"
+                        class="text-blue-500"></i> Settings</h2>
                 <button onclick="toggleSettings()"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
             </div>
 
             <div class="space-y-4">
                 <div>
-                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">OpenRouter API Key</label>
+                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">OpenRouter API
+                        Key</label>
                     <div class="flex gap-2 mt-1">
                         <input id="apiKey" type="password" readonly
                             class="flex-1 bg-black/10 border border-[var(--glass-border)] rounded-lg p-2.5 text-xs outline-none opacity-60 text-[var(--text)] transition-all">
@@ -205,7 +419,8 @@
                         <select id="modelSelect" onchange="updateModelInput()"
                             class="flex-1 border border-[var(--glass-border)] rounded-lg p-2 text-xs outline-none cursor-pointer bg-black/20 text-[var(--text)]">
                         </select>
-                        <button onclick="deleteModel()" class="bg-red-500/10 text-red-500 px-2 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <button onclick="deleteModel()" class="bg-red-500/10 text-red-500 px-2 rounded-lg"><i
+                                data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                     <div class="flex gap-2 mt-1">
                         <input id="newModelInput" type="text" placeholder="e.g. google/gemini..."
@@ -215,37 +430,47 @@
                     </div>
                 </div>
                 <div>
-                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">System Instruction</label>
+                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">System
+                        Instruction</label>
                     <textarea id="sysPrompt" rows="3"
                         class="w-full mt-1 bg-black/10 border border-[var(--glass-border)] rounded-lg p-2.5 text-xs outline-none resize-none text-[var(--text)]"></textarea>
                 </div>
                 <div class="pt-2 border-t border-[var(--glass-border)] flex gap-2">
-                    <button onclick="exportData()" class="flex-1 bg-gray-500/10 hover:bg-gray-500/20 text-[var(--text)] py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                    <button onclick="exportData()"
+                        class="flex-1 bg-gray-500/10 hover:bg-gray-500/20 text-[var(--text)] py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
                         <i data-lucide="download" class="w-3 h-3"></i> Backup
                     </button>
-                    <label class="flex-1 bg-gray-500/10 hover:bg-gray-500/20 text-[var(--text)] py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer">
+                    <label
+                        class="flex-1 bg-gray-500/10 hover:bg-gray-500/20 text-[var(--text)] py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer">
                         <i data-lucide="upload" class="w-3 h-3"></i> Restore
                         <input type="file" class="hidden" onchange="importData(this)">
                     </label>
                 </div>
             </div>
-            <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl text-sm font-bold text-white shadow-lg transition">Save Configuration</button>
+            <button onclick="saveSettings()"
+                class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl text-sm font-bold text-white shadow-lg transition">Save
+                Configuration</button>
         </div>
     </div>
 
     <!-- Help Modal -->
-    <div id="helpModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="w-full max-w-2xl rounded-2xl shadow-2xl p-6 space-y-5 transition-all max-h-[90vh] overflow-y-auto bg-[var(--sidebar-bg)] border border-[var(--glass-border)]">
+    <div id="helpModal"
+        class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div
+            class="w-full max-w-2xl rounded-2xl shadow-2xl p-6 space-y-5 transition-all max-h-[90vh] overflow-y-auto bg-[var(--sidebar-bg)] border border-[var(--glass-border)]">
             <div class="flex justify-between items-center border-b border-[var(--glass-border)] pb-3">
-                <h2 class="font-bold flex items-center gap-2 text-[var(--text)] text-lg"><i data-lucide="book-open" class="text-green-500"></i> Help</h2>
+                <h2 class="font-bold flex items-center gap-2 text-[var(--text)] text-lg"><i data-lucide="book-open"
+                        class="text-green-500"></i> Help</h2>
                 <button onclick="toggleHelp()"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
             </div>
             <div class="space-y-4 text-sm text-[var(--text)]">
-                <p>1. Get Free Key: <a href="https://openrouter.ai/keys" target="_blank" class="text-blue-400 underline">OpenRouter</a></p>
+                <p>1. Get Free Key: <a href="https://openrouter.ai/keys" target="_blank"
+                        class="text-blue-400 underline">OpenRouter</a></p>
                 <p>2. Paste Key in Settings & Save.</p>
                 <p>3. Select a Model (search 'free').</p>
             </div>
-            <button onclick="toggleHelp()" class="w-full bg-gray-700/50 hover:bg-gray-700 py-3 rounded-xl text-sm font-bold text-white">Close</button>
+            <button onclick="toggleHelp()"
+                class="w-full bg-gray-700/50 hover:bg-gray-700 py-3 rounded-xl text-sm font-bold text-white">Close</button>
         </div>
     </div>
 
@@ -269,15 +494,19 @@
 
         // --- IMPORTANT FIX: SAFE CODE RENDERING ---
         const renderer = new marked.Renderer();
-        renderer.code = (code, lang) => {
+        renderer.code = (item) => {
+            // Support marked v13+ token object
+            const code = item.text || item;
+            const lang = item.lang || (arguments.length > 1 ? arguments[1] : "");
+
             // Safe conversion to string to prevent .replace errors
-            code = String(code || "");
+            const codeStr = String(code || "");
             const validLang = !!(lang && Prism.languages[lang]);
-            const escaped = code.replace(/&/g, "&amp;")
-                                .replace(/</g, "&lt;")
-                                .replace(/>/g, "&gt;")
-                                .replace(/"/g, "&quot;")
-                                .replace(/'/g, "&#039;");
+            const escaped = codeStr.replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
             const languageClass = validLang ? `language-${lang}` : 'language-plaintext';
             return `<pre class="${languageClass}"><div class="code-header"><span>${lang || 'Code'}</span><button onclick="copyCode(this)" class="text-xs hover:text-white" title="Copy Code">Copy</button></div><code class="${languageClass}">${escaped}</code></pre>`;
         };
@@ -382,7 +611,7 @@
                                 fullAiResponse += content;
                                 aiContentSpan.innerHTML = formatResponse(fullAiResponse);
                                 const view = document.getElementById('chatView');
-                                if(view.scrollHeight - view.scrollTop - view.clientHeight < 100) view.scrollTop = view.scrollHeight;
+                                if (view.scrollHeight - view.scrollTop - view.clientHeight < 100) view.scrollTop = view.scrollHeight;
                             } catch (e) { }
                         }
                     }
@@ -390,7 +619,7 @@
                 aiContentSpan.innerHTML = formatResponse(fullAiResponse);
                 postProcessMessage(aiMsgDiv);
                 messages.push({ role: "assistant", content: fullAiResponse, model: activeModel });
-                if(prevImage) messages[messages.length-2].hasImage = true;
+                if (prevImage) messages[messages.length - 2].hasImage = true;
                 saveToHistory();
 
             } catch (err) {
@@ -409,7 +638,7 @@
         }
 
         function formatResponse(text) {
-            if(!text) return "";
+            if (!text) return "";
             let formatted = text.replace(/<think>([\s\S]*?)<\/think>/gi, `<details class="thinking-box"><summary>Thinking Process...</summary><div>$1</div></details>`);
             return marked.parse(formatted);
         }
@@ -426,12 +655,12 @@
 
             if (role === 'assistant') {
                 const id = 'msg-' + Date.now();
-                
+
                 // CLEAN MODEL NAME LOGIC
                 let cleanModel = (modelName || 'Unknown').toUpperCase();
                 // Remove suffixes like :free, :preview, -free, -preview
                 cleanModel = cleanModel.replace(/(:FREE|:PREVIEW|:ONLINE|-FREE|-PREVIEW|PREVIEW-FREE)/g, '').trim();
-                
+
                 div.innerHTML = `
                     <div id="${id}" class="ai-content">${formatResponse(content)}</div>
                     <div class="msg-footer">
@@ -456,7 +685,7 @@
         function clearInput() { const i = document.getElementById('userInput'); i.value = ""; handleInput(i); i.focus(); }
         function handleSendClick() { if (isGenerating && abortController) abortController.abort(); else sendMessage(); }
         function handleKeyAction(e) { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 1024) { e.preventDefault(); handleSendClick(); } }
-        
+
         function handleFileUpload(input) {
             const file = input.files[0];
             if (!file) return;
@@ -465,31 +694,31 @@
             reader.onload = (e) => {
                 const res = e.target.result;
                 document.getElementById('filePreviewArea').innerHTML = `<div class="file-card">${isImage ? `<img src="${res}">` : `<i data-lucide="file-text"></i>`} <span>${file.name}</span> <button onclick="clearFile()" class="remove-btn">×</button></div>`;
-                if(isImage) { pendingImage = res; pendingFileContent = ""; } else { pendingFileContent = `\n[File: ${file.name}]\n\`\`\`\n${res}\n\`\`\`\n`; pendingImage = null; }
+                if (isImage) { pendingImage = res; pendingFileContent = ""; } else { pendingFileContent = `\n[File: ${file.name}]\n\`\`\`\n${res}\n\`\`\`\n`; pendingImage = null; }
             };
-            if(isImage) reader.readAsDataURL(file); else reader.readAsText(file);
+            if (isImage) reader.readAsDataURL(file); else reader.readAsText(file);
         }
         function clearFile() { pendingFileContent = ""; pendingImage = null; document.getElementById('filePreviewArea').innerHTML = ""; document.getElementById('fileInput').value = ""; }
 
         function copyText(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); }
-        function copyCode(btn) { const code = btn.closest('pre').querySelector('code').innerText; navigator.clipboard.writeText(code).then(()=> { const o = btn.innerText; btn.innerText="Copied!"; setTimeout(()=>btn.innerText=o, 2000); }); }
-        
+        function copyCode(btn) { const code = btn.closest('pre').querySelector('code').innerText; navigator.clipboard.writeText(code).then(() => { const o = btn.innerText; btn.innerText = "Copied!"; setTimeout(() => btn.innerText = o, 2000); }); }
+
         function speakText(id) {
             const text = document.getElementById(id).innerText;
-            if(window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); return; }
+            if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); return; }
             const u = new SpeechSynthesisUtterance(text);
             window.speechSynthesis.speak(u);
         }
 
         function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
         function toggleHelp() { document.getElementById('helpModal').classList.toggle('hidden'); }
-        
+
         function saveSettings() {
             localStorage.setItem('apiKey', document.getElementById('apiKey').value);
             localStorage.setItem('modelId', document.getElementById('modelSelect').value);
             localStorage.setItem('sysPrompt', document.getElementById('sysPrompt').value);
             toggleSettings();
-            if(!document.getElementById('apiKey').readOnly) toggleKeyField();
+            if (!document.getElementById('apiKey').readOnly) toggleKeyField();
         }
 
         function toggleTheme() {
@@ -501,7 +730,7 @@
 
         function saveToHistory() {
             const idx = chats.findIndex(c => c.id === currentChatId);
-            const title = messages[0] ? (typeof messages[0].content === 'string' ? messages[0].content.substring(0,25) : "Image Chat") : "New Chat";
+            const title = messages[0] ? (typeof messages[0].content === 'string' ? messages[0].content.substring(0, 25) : "Image Chat") : "New Chat";
             const obj = { id: currentChatId, title, messages: [...messages] };
             if (idx > -1) chats[idx] = obj; else chats.unshift(obj);
             localStorage.setItem('hvn_chats', JSON.stringify(chats));
@@ -526,12 +755,12 @@
             const view = document.getElementById('chatView'); view.innerHTML = '';
             messages.forEach(m => {
                 const div = appendMessage(m.role, typeof m.content === 'string' ? m.content : "[Content]", m.model || "Legacy");
-                if(m.role === 'assistant') postProcessMessage(div);
+                if (m.role === 'assistant') postProcessMessage(div);
             });
             renderHistory();
-            if(window.innerWidth < 1024) {
-                 document.getElementById('sidebar').classList.remove('open');
-                 document.getElementById('mobileOverlay').classList.remove('active');
+            if (window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('mobileOverlay').classList.remove('active');
             }
         }
 
@@ -539,24 +768,25 @@
             currentChatId = Date.now(); messages = [];
             document.getElementById('chatView').innerHTML = `<div class="ai-msg message bg-white/5 p-4 rounded-xl border border-white/10"><p>Welcome to <strong>HvnChat V2.1</strong>! 🚀</p></div>`;
             renderHistory();
-            if(window.innerWidth < 1024) {
-                 document.getElementById('sidebar').classList.remove('open');
-                 document.getElementById('mobileOverlay').classList.remove('active');
+            if (window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('mobileOverlay').classList.remove('active');
             }
         }
 
         function deleteChat(id, e) {
             e.stopPropagation();
-            if(confirm("Delete?")) { chats = chats.filter(c => c.id !== id); localStorage.setItem('hvn_chats', JSON.stringify(chats)); if(currentChatId === id) createNewChat(); else renderHistory(); }
+            if (confirm("Delete?")) { chats = chats.filter(c => c.id !== id); localStorage.setItem('hvn_chats', JSON.stringify(chats)); if (currentChatId === id) createNewChat(); else renderHistory(); }
         }
 
-        function populateModelSelect() { const s = document.getElementById('modelSelect'); s.innerHTML = savedModels.map(m=>`<option value="${m}" ${m===(localStorage.getItem('modelId')||savedModels[0])?'selected':''}>${m}</option>`).join(''); updateModelInput(); }
+        function populateModelSelect() { const s = document.getElementById('modelSelect'); s.innerHTML = savedModels.map(m => `<option value="${m}" ${m === (localStorage.getItem('modelId') || savedModels[0]) ? 'selected' : ''}>${m}</option>`).join(''); updateModelInput(); }
         function updateModelInput() { document.getElementById('newModelInput').value = document.getElementById('modelSelect').value; }
-        function addModel() { const v = document.getElementById('newModelInput').value.trim(); if(v && !savedModels.includes(v)) { savedModels.push(v); localStorage.setItem('hvn_models', JSON.stringify(savedModels)); populateModelSelect(); document.getElementById('modelSelect').value = v; } }
-        function deleteModel() { const v = document.getElementById('modelSelect').value; if(savedModels.length>1) { savedModels = savedModels.filter(m=>m!==v); localStorage.setItem('hvn_models', JSON.stringify(savedModels)); populateModelSelect(); } }
-        
-        function exportData() { const b = new Blob([JSON.stringify(chats)], {type:"application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `hvn_backup_${Date.now()}.json`; a.click(); }
-        function importData(i) { const f = i.files[0]; if(!f) return; const r = new FileReader(); r.onload=e=>{ try { chats = JSON.parse(e.target.result); localStorage.setItem('hvn_chats', JSON.stringify(chats)); renderHistory(); createNewChat(); } catch(e){alert("Invalid file");} }; r.readAsText(f); }
+        function addModel() { const v = document.getElementById('newModelInput').value.trim(); if (v && !savedModels.includes(v)) { savedModels.push(v); localStorage.setItem('hvn_models', JSON.stringify(savedModels)); populateModelSelect(); document.getElementById('modelSelect').value = v; } }
+        function deleteModel() { const v = document.getElementById('modelSelect').value; if (savedModels.length > 1) { savedModels = savedModels.filter(m => m !== v); localStorage.setItem('hvn_models', JSON.stringify(savedModels)); populateModelSelect(); } }
+
+        function exportData() { const b = new Blob([JSON.stringify(chats)], { type: "application/json" }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `hvn_backup_${Date.now()}.json`; a.click(); }
+        function importData(i) { const f = i.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try { chats = JSON.parse(e.target.result); localStorage.setItem('hvn_chats', JSON.stringify(chats)); renderHistory(); createNewChat(); } catch (e) { alert("Invalid file"); } }; r.readAsText(f); }
     </script>
 </body>
+
 </html>
