@@ -255,24 +255,22 @@
             font-weight: bold;
         }
 
-        /* Stop Button */
-        #stopBtn {
-            display: none;
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-10px);
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            backdrop-filter: blur(4px);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-            z-index: 50;
-            animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        aside {
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(12px);
+            border-right: var(--glass-border);
+            z-index: 40;
+            transition: transform 0.3s ease;
         }
+
+        aside.closed {
+            transform: translateX(-100%);
+            position: absolute;
+            height: 100%;
+        }
+
+        /* Default Open on Desktop, Closed on Mobile behavior handled by JS/Media Queries if needed, 
+           but user wants manual toggle. We'll rely on a class 'closed' */
 
         @keyframes popIn {
             from {
@@ -327,8 +325,7 @@
     </header>
 
     <div class="flex flex-1 overflow-hidden relative">
-        <aside id="sidebar"
-            class="absolute lg:relative z-40 w-64 h-full flex flex-col transition-transform -translate-x-full lg:translate-x-0">
+        <aside id="sidebar" class="relative w-64 h-full flex flex-col closed transition-all duration-300">
             <div class="p-3 pb-0">
                 <div class="flex items-center bg-black/20 border border-[var(--border)] rounded-xl px-2 py-1.5 mb-2">
                     <i data-lucide="search" class="w-4 h-4 text-gray-500 mr-2"></i>
@@ -360,42 +357,38 @@
 
             <footer class="p-3 md:p-6 bg-transparent">
                 <div class="max-w-4xl mx-auto">
-                    <div class="relative max-w-4xl mx-auto">
-                        <!-- Stop Generation Button -->
-                        <button id="stopBtn" onclick="stopGeneration()">
-                            <i data-lucide="square" class="w-3 h-3 inline mr-1"></i> Stop Generation
+                    <!-- Stop Button Removed (Merged into Send) -->
+
+                    <!-- New File Preview Area -->
+                    <div id="filePreviewArea"></div>
+
+                    <!-- Old File Indicator (Hidden/Removed) -->
+                    <div id="fileIndicator" class="hidden"></div>
+
+                    <div class="input-container flex items-end gap-2 p-3 transition-all">
+                        <label class="p-2.5 cursor-pointer hover:bg-white/10 rounded-xl transition shrink-0 group">
+                            <i data-lucide="paperclip"
+                                class="w-5 h-5 text-gray-400 group-hover:text-blue-400 transition"></i>
+                            <input type="file" id="fileInput" class="hidden" onchange="handleFileUpload(this)">
+                        </label>
+
+                        <textarea id="userInput" rows="1" placeholder="Ask HvnChat..."
+                            class="flex-1 bg-transparent py-2.5 px-2 focus:outline-none resize-none text-sm text-[var(--text)] max-h-40 overflow-y-auto"
+                            oninput="handleInput(this)" onkeydown="handleKeyAction(event)"></textarea>
+
+                        <button id="sendBtn" onclick="handleSendClick()"
+                            class="bg-blue-600 hover:bg-blue-700 p-2.5 rounded-xl text-white shadow-lg active:scale-95 transition shrink-0 flex items-center justify-center w-10 h-10">
+                            <i id="sendIcon" data-lucide="send-horizontal" class="w-5 h-5 transition-all"></i>
                         </button>
-
-                        <!-- New File Preview Area -->
-                        <div id="filePreviewArea"></div>
-
-                        <!-- Old File Indicator (Hidden/Removed) -->
-                        <div id="fileIndicator" class="hidden"></div>
-
-                        <div class="input-container flex items-end gap-2 p-3 transition-all">
-                            <label class="p-2.5 cursor-pointer hover:bg-white/10 rounded-xl transition shrink-0 group">
-                                <i data-lucide="paperclip"
-                                    class="w-5 h-5 text-gray-400 group-hover:text-blue-400 transition"></i>
-                                <input type="file" id="fileInput" class="hidden" onchange="handleFileUpload(this)">
-                            </label>
-
-                            <textarea id="userInput" rows="1" placeholder="Ask HvnChat..."
-                                class="flex-1 bg-transparent py-2.5 px-2 focus:outline-none resize-none text-sm text-[var(--text)] max-h-40 overflow-y-auto"
-                                oninput="handleInput(this)" onkeydown="handleKeyAction(event)"></textarea>
-
-                            <button id="sendBtn" onclick="handleSendClick()"
-                                class="bg-blue-600 hover:bg-blue-700 p-2.5 rounded-xl text-white shadow-lg active:scale-95 transition shrink-0">
-                                <i id="sendIcon" data-lucide="send-horizontal" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                        <div class="text-center mt-2">
-                            <span id="charCount" class="text-[10px] text-gray-500 font-mono opacity-0 transition">0
-                                chars</span>
-                        </div>
+                    </div>
+                    <div class="text-center mt-2">
+                        <span id="charCount" class="text-[10px] text-gray-500 font-mono opacity-0 transition">0
+                            chars</span>
                     </div>
                 </div>
-            </footer>
-        </main>
+    </div>
+    </footer>
+    </main>
     </div>
 
     <!-- Settings Modal -->
@@ -427,7 +420,7 @@
                     <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Model List</label>
                     <div class="flex gap-2 mt-1 mb-2">
                         <select id="modelSelect" onchange="updateModelInput()"
-                            class="flex-1 border border-[var(--border)] rounded-lg p-2 text-xs outline-none cursor-pointer">
+                            class="flex-1 border border-[var(--border)] rounded-lg p-2 text-xs outline-none cursor-pointer bg-[var(--input-bg)] text-[var(--text)]">
                             <!-- Options populated by JS -->
                         </select>
                         <button onclick="deleteModel()" class="bg-red-500/10 text-red-500 px-2 rounded-lg"><i
@@ -641,6 +634,10 @@
             populateModelSelect();
             if (chats.length === 0) createNewChat();
             else loadChat(chats[0].id);
+
+            // Fix Sidebar Toggle on Desktop
+            // Initially check if we want it open or closed? Let's default to open on Desktop.
+            if (window.innerWidth < 1024) document.getElementById('sidebar').classList.add('closed');
         };
 
         // --- Core Logic ---
@@ -821,7 +818,20 @@
             }
         }
 
-        function formatResponse(text) {
+        function formatResponse(content) {
+            // FIX: Handle object content (e.g. from history or multimodal)
+            let text = content;
+            if (typeof content === 'object' && content !== null) {
+                // If it's an array (multimodal), find the first text part
+                if (Array.isArray(content)) {
+                    const textPart = content.find(p => p.type === 'text');
+                    text = textPart ? textPart.text : JSON.stringify(content);
+                } else {
+                    text = JSON.stringify(content); // Fallback
+                }
+            }
+            if (!text) return "";
+
             // 1. Handle Thinking Tags
             let formatted = text.replace(
                 /<think>([\s\S]*?)<\/think>/gi,
@@ -857,19 +867,34 @@
 
         function startGenerationState() {
             isGenerating = true;
-            document.getElementById('stopBtn').style.display = 'block';
-            document.getElementById('sendIcon').classList.add('opacity-0'); // Hide send icon visually
+            const btn = document.getElementById('sendBtn');
+            const icon = document.getElementById('sendIcon');
+
+            // Change to Stop Button Style
+            btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            btn.classList.add('bg-red-500', 'hover:bg-red-600');
+
+            // Switch Icon
+            icon.setAttribute('data-lucide', 'square'); // Square for stop
+            lucide.createIcons();
         }
 
         function endGenerationState() {
             isGenerating = false;
-            document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('sendIcon').classList.remove('opacity-0');
+            const btn = document.getElementById('sendBtn');
+            const icon = document.getElementById('sendIcon');
+
+            // Revert to Send Button Style
+            btn.classList.remove('bg-red-500', 'hover:bg-red-600');
+            btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+
+            // Switch Icon
+            icon.setAttribute('data-lucide', 'send-horizontal');
+            lucide.createIcons();
 
             const blinker = document.querySelector('.cursor-blink');
             if (blinker) blinker.classList.remove('cursor-blink');
 
-            lucide.createIcons();
             abortController = null;
         }
 
@@ -943,7 +968,16 @@
         }
 
         // --- Reused & Utility ---
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
+        function toggleSidebar() {
+            const s = document.getElementById('sidebar');
+            s.classList.toggle('closed');
+            // If absolute (mobile), we might need extra handling, but CSS transforms handle 'closed' state now
+            if (!s.classList.contains('closed') && window.innerWidth < 1024) {
+                s.style.position = 'absolute'; // Ensure it floats on mobile
+            } else if (window.innerWidth < 1024) {
+                // s.style.position = 'absolute'; 
+            }
+        }
         function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
         function toggleHelp() { document.getElementById('helpModal').classList.toggle('hidden'); }
         function toggleKeyField() {
@@ -961,7 +995,7 @@
         function populateModelSelect() {
             const select = document.getElementById('modelSelect');
             const currentModel = localStorage.getItem('modelId') || savedModels[0];
-            select.innerHTML = savedModels.map(m => `<option value="${m}" ${m === currentModel ? 'selected' : ''}>${m}</option>`).join('');
+            select.innerHTML = savedModels.map(m => `<option value="${m}" ${m === currentModel ? 'selected' : ''} class="bg-slate-800 text-white">${m}</option>`).join('');
             document.getElementById('newModelInput').value = currentModel;
         }
         function addModel() {
