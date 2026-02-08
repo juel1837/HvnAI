@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HvnChat Ultra V5</title>
+    <title>HvnChat Ultra V6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -44,6 +44,10 @@
         aside { background: var(--sidebar); border-right: 1px solid var(--border); }
         #settingsModal > div { background: var(--settings-bg); color: var(--text); border: 1px solid var(--border); }
 
+        /* Dropdown Fix for Visibility */
+        select { background-color: var(--input-bg) !important; color: var(--text) !important; }
+        option { background-color: var(--sidebar); color: var(--text); padding: 10px; }
+
         /* Chat View */
         #chatView { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
         .message { max-width: 90%; margin-bottom: 1.5rem; animation: fadeIn 0.3s ease; line-height: 1.6; position: relative; }
@@ -54,7 +58,6 @@
         
         .error-msg { border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
-        /* Actions Bar (Copy/Speak) */
         .msg-actions { display: flex; gap: 8px; margin-top: 5px; opacity: 0.6; font-size: 0.8em; }
         .msg-actions button:hover { color: #3b82f6; opacity: 1; }
 
@@ -63,6 +66,11 @@
         .code-header { background: #161b22; color: #8b949e; font-size: 0.75rem; padding: 0.5rem 1rem; display: flex; justify-content: space-between; border-radius: 0.75rem 0.75rem 0 0; margin-bottom: -0.8rem; border: 1px solid #30363d; border-bottom: none; }
         .ai-msg code { font-family: 'Consolas', monospace; font-size: 0.9em; background: rgba(110, 118, 129, 0.2); padding: 0.2rem 0.4rem; border-radius: 6px; }
         
+        /* Thinking Process Box */
+        details.thinking-box { background: rgba(100, 116, 139, 0.1); border-left: 3px solid #64748b; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 0.85em; color: #94a3b8; }
+        details.thinking-box summary { cursor: pointer; font-weight: bold; opacity: 0.8; user-select: none; }
+        details.thinking-box div { margin-top: 5px; white-space: pre-wrap; font-style: italic; }
+
         .cursor-blink::after { content: '▋'; margin-left: 2px; animation: blink 1s infinite; color: #3b82f6; font-size: 0.8em; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
@@ -78,7 +86,7 @@
             <button onclick="toggleSidebar()" class="p-1 hover:bg-blue-500/10 rounded-md transition text-[var(--text)]">
                 <i data-lucide="menu" class="w-5 h-5"></i>
             </button>
-            <h1 class="font-bold text-md tracking-tight">HvnChat V5</h1>
+            <h1 class="font-bold text-md tracking-tight">HvnChat <span class="text-xs bg-blue-600 text-white px-1 rounded">V6</span></h1>
         </div>
         <button onclick="toggleTheme()" class="p-2 hover:bg-blue-500/10 rounded-full transition text-[var(--text)]">
             <i id="themeIcon" data-lucide="moon" class="w-5 h-5"></i>
@@ -87,7 +95,6 @@
 
     <div class="flex flex-1 overflow-hidden relative">
         <aside id="sidebar" class="absolute lg:relative z-40 w-64 h-full flex flex-col transition-transform -translate-x-full lg:translate-x-0">
-            <!-- Search Bar -->
             <div class="p-3 pb-0">
                 <div class="flex items-center bg-black/20 border border-[var(--border)] rounded-xl px-2 py-1.5 mb-2">
                     <i data-lucide="search" class="w-4 h-4 text-gray-500 mr-2"></i>
@@ -116,6 +123,12 @@
                         <i data-lucide="file-check" class="w-3 h-3"></i> <span id="fileNameDisplay">File Ready</span>
                         <button onclick="clearFile()" class="ml-2">×</button>
                     </div>
+                    
+                    <div class="flex justify-between items-center px-2 mb-1">
+                        <span id="charCount" class="text-[10px] text-gray-500 font-mono opacity-0 transition">0 chars</span>
+                        <button id="clearInputBtn" onclick="clearInput()" class="text-[10px] text-red-400 hover:text-red-500 hidden">CLEAR</button>
+                    </div>
+
                     <div class="flex items-end gap-2 bg-[var(--input-bg)] rounded-2xl p-2.5 border border-[var(--border)] focus-within:border-blue-500 shadow-xl transition-all">
                         <label class="p-2.5 cursor-pointer hover:bg-blue-500/10 rounded-xl transition shrink-0">
                             <i data-lucide="paperclip" class="w-5 h-5 text-gray-400"></i>
@@ -124,10 +137,9 @@
                         
                         <textarea id="userInput" rows="1" placeholder="Ask HvnChat..." 
                             class="flex-1 bg-transparent py-2.5 px-1 focus:outline-none resize-none text-sm text-[var(--text)] max-h-32 overflow-y-auto" 
-                            oninput="autoResize(this)"
+                            oninput="handleInput(this)"
                             onkeydown="handleKeyAction(event)"></textarea>
 
-                        <!-- Send/Stop Button -->
                         <button id="sendBtn" onclick="handleSendClick()" class="bg-blue-600 hover:bg-blue-700 p-2.5 rounded-xl text-white shadow-md active:scale-90 transition shrink-0 mb-0.5">
                             <i id="sendIcon" data-lucide="send-horizontal" class="w-5 h-5"></i>
                         </button>
@@ -139,9 +151,9 @@
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="w-full max-w-sm rounded-2xl shadow-2xl p-6 space-y-5 transition-all max-h-[90vh] overflow-y-auto">
+        <div class="w-full max-w-sm rounded-2xl shadow-2xl p-6 space-y-5 transition-all max-h-[90vh] overflow-y-auto bg-[var(--settings-bg)]">
             <div class="flex justify-between items-center border-b border-[var(--border)] pb-3">
-                <h2 class="font-bold flex items-center gap-2"><i data-lucide="settings" class="text-blue-500"></i> Settings</h2>
+                <h2 class="font-bold flex items-center gap-2 text-[var(--text)]"><i data-lucide="settings" class="text-blue-500"></i> Settings</h2>
                 <button onclick="toggleSettings()"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
             </div>
             
@@ -150,23 +162,23 @@
                 <div>
                     <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">OpenRouter API Key</label>
                     <div class="flex gap-2 mt-1">
-                        <input id="apiKey" type="password" readonly class="flex-1 bg-black/10 border border-[var(--border)] rounded-lg p-2.5 text-xs outline-none opacity-60">
+                        <input id="apiKey" type="password" readonly class="flex-1 bg-black/10 border border-[var(--border)] rounded-lg p-2.5 text-xs outline-none opacity-60 text-[var(--text)]">
                         <button id="apiKeyBtn" onclick="toggleKeyField()" class="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-lg text-[10px] font-bold min-w-[50px]">EDIT</button>
                     </div>
                 </div>
 
-                <!-- Model Manager -->
+                <!-- Model Manager (Fixed Visibility) -->
                 <div>
                     <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Model List</label>
                     <div class="flex gap-2 mt-1 mb-2">
-                        <select id="modelSelect" onchange="updateModelInput()" class="flex-1 bg-black/10 border border-[var(--border)] rounded-lg p-2 text-xs outline-none text-[var(--text)]">
+                        <select id="modelSelect" onchange="updateModelInput()" class="flex-1 border border-[var(--border)] rounded-lg p-2 text-xs outline-none cursor-pointer">
                             <!-- Options populated by JS -->
                         </select>
                         <button onclick="deleteModel()" class="bg-red-500/10 text-red-500 px-2 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                     <label class="text-[9px] text-gray-400">Add New Model ID:</label>
                     <div class="flex gap-2 mt-1">
-                        <input id="newModelInput" type="text" placeholder="e.g. google/gemini-2.0-flash-lite..." class="flex-1 bg-black/10 border border-[var(--border)] rounded-lg p-2 text-xs outline-none">
+                        <input id="newModelInput" type="text" placeholder="e.g. google/gemini..." class="flex-1 bg-black/10 border border-[var(--border)] rounded-lg p-2 text-xs outline-none text-[var(--text)]">
                         <button onclick="addModel()" class="bg-blue-500/10 text-blue-500 px-3 rounded-lg text-xs font-bold">ADD</button>
                     </div>
                 </div>
@@ -174,10 +186,9 @@
                 <!-- System Prompt -->
                 <div>
                     <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">System Instruction</label>
-                    <textarea id="sysPrompt" rows="3" class="w-full mt-1 bg-black/10 border border-[var(--border)] rounded-lg p-2.5 text-xs outline-none resize-none"></textarea>
+                    <textarea id="sysPrompt" rows="3" class="w-full mt-1 bg-black/10 border border-[var(--border)] rounded-lg p-2.5 text-xs outline-none resize-none text-[var(--text)]"></textarea>
                 </div>
 
-                <!-- Export / Import -->
                 <div class="pt-2 border-t border-[var(--border)] flex gap-2">
                     <button onclick="exportData()" class="flex-1 bg-gray-500/10 hover:bg-gray-500/20 text-[var(--text)] py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
                         <i data-lucide="download" class="w-3 h-3"></i> Backup
@@ -194,7 +205,6 @@
 
     <script>
         let chats = JSON.parse(localStorage.getItem('hvn_chats') || '[]');
-        // Default models
         const defaultModels = [
             "google/gemini-2.0-flash-lite-preview-02-05:free",
             "deepseek/deepseek-r1:free",
@@ -205,7 +215,7 @@
         let currentChatId = Date.now();
         let messages = [];
         let pendingFileContent = "";
-        let abortController = null; // For stopping generation
+        let abortController = null;
         let isGenerating = false;
 
         lucide.createIcons();
@@ -227,7 +237,6 @@
             document.getElementById('apiKey').value = localStorage.getItem('apiKey') || "";
             document.getElementById('sysPrompt').value = localStorage.getItem('sysPrompt') || "You are HvnChat, a helpful AI friend.";
             if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
-            
             renderHistory();
             populateModelSelect();
             createNewChat();
@@ -252,7 +261,6 @@
                 savedModels.push(val);
                 localStorage.setItem('hvn_models', JSON.stringify(savedModels));
                 populateModelSelect();
-                // Select the new one
                 document.getElementById('modelSelect').value = val;
             }
         }
@@ -263,12 +271,9 @@
                 savedModels = savedModels.filter(m => m !== val);
                 localStorage.setItem('hvn_models', JSON.stringify(savedModels));
                 populateModelSelect();
-            } else {
-                alert("Cannot delete the last model!");
-            }
+            } else { alert("Cannot delete the last model!"); }
         }
 
-        // --- Settings & UI Toggles ---
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
         function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
         
@@ -293,9 +298,30 @@
 
         function saveSettings() {
             localStorage.setItem('apiKey', document.getElementById('apiKey').value);
-            localStorage.setItem('modelId', document.getElementById('modelSelect').value); // Save selected model
+            localStorage.setItem('modelId', document.getElementById('modelSelect').value);
             localStorage.setItem('sysPrompt', document.getElementById('sysPrompt').value);
             toggleSettings();
+        }
+
+        function handleInput(textarea) {
+            textarea.style.height = 'auto'; 
+            textarea.style.height = textarea.scrollHeight + 'px';
+            
+            // Char count
+            const len = textarea.value.length;
+            const countEl = document.getElementById('charCount');
+            const clearBtn = document.getElementById('clearInputBtn');
+            
+            countEl.innerText = len + " chars";
+            countEl.classList.toggle('opacity-0', len === 0);
+            clearBtn.style.display = len > 0 ? 'block' : 'none';
+        }
+
+        function clearInput() {
+            const input = document.getElementById('userInput');
+            input.value = "";
+            handleInput(input);
+            input.focus();
         }
 
         // --- Export / Import ---
@@ -328,7 +354,6 @@
             reader.readAsText(file);
         }
 
-        // --- Search History ---
         function filterHistory(query) {
             const list = document.getElementById('historyList');
             const q = query.toLowerCase();
@@ -343,15 +368,12 @@
             lucide.createIcons();
         }
 
-        // --- Chat Logic ---
         function handleSendClick() {
             if (isGenerating) {
-                // Stop Generation
                 if (abortController) abortController.abort();
                 isGenerating = false;
                 document.getElementById('sendIcon').setAttribute('data-lucide', 'send-horizontal');
                 lucide.createIcons();
-                // Remove blinking cursor from last message
                 const lastMsg = document.querySelector('.cursor-blink');
                 if(lastMsg) lastMsg.classList.remove('cursor-blink');
             } else {
@@ -370,16 +392,14 @@
             const fullPrompt = userText + pendingFileContent;
             appendMessage('user', userText || "Shared a file");
             
-            input.value = '';
-            input.style.height = 'auto'; 
+            clearInput(); // Resets box and counter
             clearFile();
 
-            // Set UI to loading state
             isGenerating = true;
-            document.getElementById('sendIcon').setAttribute('data-lucide', 'square'); // Change to stop icon
+            document.getElementById('sendIcon').setAttribute('data-lucide', 'square');
             lucide.createIcons();
             
-            abortController = new AbortController(); // New controller
+            abortController = new AbortController();
 
             const aiMsgDiv = appendMessage('assistant', "...");
             const aiContentSpan = aiMsgDiv.querySelector('.ai-content');
@@ -396,7 +416,7 @@
                         messages: [{role: "system", content: localStorage.getItem('sysPrompt')}, ...messages, {role: "user", content: fullPrompt}],
                         stream: true 
                     }),
-                    signal: abortController.signal // Pass signal
+                    signal: abortController.signal
                 });
 
                 if (!response.ok) throw new Error(`API Error: ${response.status}`);
@@ -419,6 +439,7 @@
                             try {
                                 const parsed = JSON.parse(data);
                                 const content = parsed.choices[0].delta.content || "";
+                                // Only DeepSeek R1 outputs <think> usually
                                 fullAiResponse += content;
                                 aiContentSpan.innerText = fullAiResponse; 
                                 document.getElementById('chatView').scrollTop = document.getElementById('chatView').scrollHeight;
@@ -427,21 +448,23 @@
                     }
                 }
                 
-                aiContentSpan.innerHTML = marked.parse(fullAiResponse);
+                // Process output to format <think> tags if present
+                const formattedResponse = formatThinkingProcess(fullAiResponse);
+                aiContentSpan.innerHTML = formattedResponse;
+                
                 messages.push({ role: "assistant", content: fullAiResponse });
                 saveToHistory();
 
             } catch (err) {
                 if (err.name === 'AbortError') {
-                    aiContentSpan.innerHTML = marked.parse(fullAiResponse) + " <br><em class='text-xs text-orange-400'>(Stopped by user)</em>";
-                    messages.push({ role: "assistant", content: fullAiResponse }); // Save partial
+                    aiContentSpan.innerHTML = formatThinkingProcess(fullAiResponse) + " <br><em class='text-xs text-orange-400'>(Stopped by user)</em>";
+                    messages.push({ role: "assistant", content: fullAiResponse });
                     saveToHistory();
                 } else {
                     aiMsgDiv.classList.add('error-msg');
                     aiContentSpan.innerHTML = `<strong>⚠️ Error:</strong> ${err.message}`;
                 }
             } finally {
-                // Reset UI
                 isGenerating = false;
                 aiContentSpan.classList.remove('cursor-blink');
                 document.getElementById('sendIcon').setAttribute('data-lucide', 'send-horizontal');
@@ -450,7 +473,15 @@
             }
         }
 
-        // --- Message Utils (Append, Speak, Copy) ---
+        // New function to handle DeepSeek Thinking tags
+        function formatThinkingProcess(text) {
+            // Regex to find <think>...</think> and replace with details/summary
+            return marked.parse(text.replace(
+                /<think>([\s\S]*?)<\/think>/gi, 
+                `<details class="thinking-box"><summary>Thinking Process...</summary><div>$1</div></details>`
+            ));
+        }
+
         function appendMessage(role, content) {
             const view = document.getElementById('chatView');
             const div = document.createElement('div');
@@ -475,29 +506,22 @@
             return div;
         }
 
-        // Text To Speech
         function speakText(elementId, btn) {
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
-                // Optionally change icon back if we were tracking state properly
                 return;
             }
-            
-            const text = document.getElementById(elementId).innerText;
+            // Strip HTML tags for reading
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = document.getElementById(elementId).innerHTML;
+            const text = tempDiv.textContent || tempDiv.innerText;
+
             const utterance = new SpeechSynthesisUtterance(text);
-            
-            // Try to find a good voice
             const voices = window.speechSynthesis.getVoices();
-            // Prefer English Female voices or just default
             const preferred = voices.find(v => v.lang.includes('en') && v.name.includes('Google')) || voices[0];
             if(preferred) utterance.voice = preferred;
 
             window.speechSynthesis.speak(utterance);
-        }
-
-        function autoResize(textarea) {
-            textarea.style.height = 'auto'; 
-            textarea.style.height = textarea.scrollHeight + 'px'; 
         }
 
         function handleKeyAction(e) {
@@ -544,7 +568,6 @@
             a.click();
         }
 
-        // --- History Logic ---
         function saveToHistory() {
             const idx = chats.findIndex(c => c.id === currentChatId);
             const titleText = messages[0] ? (messages[0].content.length > 25 ? messages[0].content.substring(0, 25) + "..." : messages[0].content) : "New Chat";
@@ -554,9 +577,7 @@
             filterHistory(document.querySelector('input[placeholder="Search history..."]').value || "");
         }
 
-        function renderHistory() {
-            filterHistory(""); // Initial render with empty query
-        }
+        function renderHistory() { filterHistory(""); }
 
         function loadChat(id) {
             const chat = chats.find(c => c.id === id);
@@ -569,8 +590,9 @@
                     div.innerText = m.content;
                 } else {
                     const msgId = 'msg-' + Math.random().toString(36).substr(2, 5);
+                    const parsedContent = formatThinkingProcess(m.content);
                     div.innerHTML = `
-                        <div id="${msgId}" class="ai-content">${marked.parse(m.content)}</div>
+                        <div id="${msgId}" class="ai-content">${parsedContent}</div>
                         <div class="msg-actions">
                             <button onclick="speakText('${msgId}', this)"><i data-lucide="volume-2" class="w-4 h-4"></i></button>
                         </div>
@@ -586,9 +608,10 @@
         function createNewChat() {
             currentChatId = Date.now(); messages = [];
             document.getElementById('chatView').innerHTML = `<div class="ai-msg message">
-                <p><strong>HvnChat Ultra V5</strong> এ স্বাগতম! 🖤</p>
-                <p>আমি এখন কথা বলতে পারি এবং ব্যাকআপ রাখতে পারি।</p>
+                <p><strong>HvnChat Ultra V6</strong> এ স্বাগতম! 🖤</p>
+                <p>Model selection fixed & Thinking process added.</p>
             </div>`;
+            clearInput();
         }
 
         function deleteChat(id, e) {
