@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HvnChat Ultra V3.1</title>
+    <title>HvnChat Ultra V3.2</title>
     
     <meta name="theme-color" content="#020617">
     <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkh2bkNoYXQgVWx0cmEiLAogICJzaG9ydF9uYW1lIjogIkh2bkNoYXQiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzAyMDYxNyIsCiAgInRoZW1lX2NvbG9yIjogIzAyMDYxNyIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGF0aWNvbi5jb20vNTEyLzg5NDMvODk0MzM3Ny5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdCn0=">
@@ -47,7 +47,7 @@
 
         body { height: 100dvh; display: flex; flex-direction: column; background: var(--bg-gradient); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; }
         aside { background: var(--sidebar-bg); border-right: var(--glass-border); transition: transform 0.3s ease; z-index: 50; }
-        @media (max-width: 1024px) { aside { position: fixed; top: 0; left: 0; height: 100%; width: 280px; transform: translateX(-100%); } aside.open { transform: translateX(0); } }
+        @media (max-width: 1024px) { aside { position: fixed; top: 0; left: 0; height: 100%; width: 280px; transform: translateX(-100%); } aside.open { transform: translateX(0); } #mobileOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 40; display: none; backdrop-filter: blur(3px); } #mobileOverlay.active { display: block; } }
         
         header { height: 50px; background: var(--glass-bg); backdrop-filter: blur(10px); border-bottom: var(--glass-border); }
         #chatView { flex: 1; overflow-y: auto; scroll-behavior: smooth; padding-bottom: 0.5rem; }
@@ -58,22 +58,46 @@
         .user-msg { align-self: flex-end; background: var(--user-msg-bg); color: white; border-radius: 1.25rem 1.25rem 0.25rem 1.25rem; padding: 0.8rem 1rem; }
         .ai-msg { align-self: flex-start; background: var(--ai-msg-bg); color: var(--text); border-radius: 1.25rem 1.25rem 1.25rem 0.25rem; padding: 0.8rem 1rem; border: var(--glass-border); min-width: 150px; }
         
-        /* Quick Model Selector CSS */
+        /* Message Footer Adjustment */
+        .msg-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .msg-actions { display: flex; gap: 14px; } /* Separate icons */
+        .msg-actions button { opacity: 0.5; transition: 0.2s; color: var(--text); }
+        .msg-actions button:hover { opacity: 1; color: #60a5fa; }
+        
+        .model-tag { 
+            opacity: 0.3; 
+            font-family: monospace; 
+            font-size: 0.55rem; /* Smaller font */
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            text-align: right;
+        }
+
+        /* Fixed TTS Select UI */
+        select#voiceSelect, select#modelSelect {
+            background-color: var(--sidebar-bg) !important;
+            color: var(--text) !important;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
         #quickModelMenu {
             position: absolute; bottom: 100%; right: 0; margin-bottom: 8px;
             background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px; width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
             z-index: 100; display: none;
         }
-        .model-item {
-            padding: 10px 14px; cursor: pointer; transition: 0.2s; border-radius: 8px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .model-item { padding: 10px 14px; cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
         .model-item:hover { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
         .model-item.active { color: #3b82f6; font-weight: bold; }
 
-        .input-container { background: var(--input-bg); backdrop-filter: blur(16px); border: var(--glass-border); border-radius: 1.2rem; position: relative; }
-        
+        .input-container { background: var(--input-bg); backdrop-filter: blur(16px); border: var(--glass-border); border-radius: 1.2rem; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); border-radius: 10px; }
     </style>
@@ -87,7 +111,7 @@
             <button onclick="toggleSidebar()" class="p-1 hover:bg-blue-500/10 rounded-md transition text-[var(--text)]">
                 <i data-lucide="menu" class="w-5 h-5"></i>
             </button>
-            <h1 class="font-bold text-md tracking-tight">HvnChat <span class="text-[9px] bg-blue-600 text-white px-1 rounded align-top">V3.1</span></h1>
+            <h1 class="font-bold text-md tracking-tight">HvnChat <span class="text-[9px] bg-blue-600 text-white px-1 rounded align-top">V3.2</span></h1>
         </div>
         <button onclick="toggleTheme()" class="p-2 hover:bg-blue-500/10 rounded-full transition text-[var(--text)]">
             <i id="themeIcon" data-lucide="moon" class="w-5 h-5"></i>
@@ -118,36 +142,32 @@
             
             <footer class="p-2 bg-transparent">
                 <div class="max-w-4xl mx-auto relative">
-                    <div id="filePreviewArea"></div>
+                    <div id="filePreviewArea" class="mb-1"></div>
                     
-                    <!-- Quick Model Selector Menu -->
                     <div id="quickModelMenu" class="p-2">
-                        <div class="text-[10px] text-gray-500 font-bold uppercase px-3 py-1 mb-1">Select Model</div>
+                        <div class="text-[10px] text-gray-500 font-bold uppercase px-3 py-1 mb-1 border-b border-white/5">Select Model</div>
                         <div id="modelListItems" class="max-h-60 overflow-y-auto"></div>
                     </div>
 
-                    <div class="input-container flex flex-col p-2 transition-all">
+                    <div class="input-container flex flex-col p-2 transition-all shadow-xl">
                         <div class="flex items-end gap-2">
                             <label class="p-2 cursor-pointer hover:bg-white/10 rounded-xl transition shrink-0 group">
                                 <i data-lucide="paperclip" class="w-5 h-5 text-gray-400 group-hover:text-blue-400"></i>
                                 <input type="file" id="fileInput" class="hidden" accept=".txt,.pdf,image/*" onchange="handleFileUpload(this)">
                             </label>
                             <textarea id="userInput" rows="1" placeholder="Ask HvnChat..." class="flex-1 bg-transparent py-2 px-1 focus:outline-none resize-none text-sm text-white max-h-36 overflow-y-auto" oninput="handleInput(this)" onkeydown="handleKeyAction(event)"></textarea>
-                            <button id="sendBtn" onclick="handleSendClick()" class="bg-blue-600 hover:bg-blue-700 p-2 rounded-xl text-white active:scale-95 transition shrink-0 w-9 h-9 flex items-center justify-center">
+                            <button id="sendBtn" onclick="handleSendClick()" class="bg-blue-600 hover:bg-blue-700 p-2 rounded-xl text-white active:scale-95 transition shrink-0 w-9 h-9 flex items-center justify-center shadow-lg">
                                 <i id="sendIcon" data-lucide="send-horizontal" class="w-5 h-5"></i>
                             </button>
                         </div>
-                        
-                        <!-- Model Switcher Bar -->
                         <div class="flex justify-end px-1 pt-1 mt-1 border-t border-white/5">
-                            <button onclick="toggleQuickModel()" class="text-[10px] text-gray-400 hover:text-blue-400 flex items-center gap-1 transition">
+                            <button onclick="toggleQuickModel()" class="text-[9px] text-gray-500 hover:text-blue-400 flex items-center gap-1 transition uppercase tracking-wider font-bold">
                                 <span id="activeModelLabel">Loading...</span>
-                                <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                                <i data-lucide="chevron-up" class="w-2.5 h-2.5"></i>
                             </button>
                         </div>
                     </div>
-                    
-                    <div class="text-center mt-1.5"><p class="text-[10px] text-gray-500/80 font-medium">AI can make mistakes. Please check important info.</p></div>
+                    <div class="text-center mt-1.5"><p class="text-[10px] text-gray-500/70 font-medium">AI can make mistakes. Verify important info.</p></div>
                 </div>
             </footer>
         </main>
@@ -155,7 +175,7 @@
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="w-full max-w-sm rounded-2xl p-6 space-y-5 bg-[#0f172a] border border-[var(--glass-border)] max-h-[90vh] overflow-y-auto">
+        <div class="w-full max-w-sm rounded-2xl p-6 space-y-5 bg-[#0f172a] border border-white/10 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
                 <h2 class="font-bold text-white">Settings</h2>
                 <button onclick="toggleSettings()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -170,15 +190,15 @@
                 </div>
                 <div>
                     <label class="text-gray-500 font-bold uppercase block mb-1">Manage Models</label>
-                    <div id="settingsModelList" class="space-y-2 mb-2"></div>
+                    <div id="settingsModelList" class="space-y-1 mb-2"></div>
                     <div class="flex gap-2 mt-3">
-                        <input id="newModelInput" type="text" placeholder="Model ID (e.g. google/gemini-pro)" class="flex-1 bg-black/20 border border-white/10 rounded-lg p-2 text-white outline-none">
+                        <input id="newModelInput" type="text" placeholder="Model ID" class="flex-1 bg-black/20 border border-white/10 rounded-lg p-2 text-white outline-none">
                         <button onclick="addModel()" class="bg-blue-600 text-white px-3 rounded-lg font-bold">ADD</button>
                     </div>
                 </div>
                 <div>
-                    <label class="text-gray-500 font-bold uppercase block mb-1">TTS Voice</label>
-                    <select id="voiceSelect" class="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-white outline-none cursor-pointer"></select>
+                    <label class="text-gray-500 font-bold uppercase block mb-1">TTS Voice Selection</label>
+                    <select id="voiceSelect" class="w-full rounded-lg p-2 outline-none cursor-pointer"></select>
                 </div>
                 <div>
                     <label class="text-gray-500 font-bold uppercase block mb-1">System Prompt</label>
@@ -195,7 +215,7 @@
         let db, chats = [], currentChatId = Date.now(), messages = [];
         let pendingFileContent = "", pendingImage = null, abortController = null;
         let isGenerating = false, voices = [];
-        let savedModels = JSON.parse(localStorage.getItem('hvn_models') || '["google/gemini-2.0-flash-lite-preview-02-05:free", "deepseek/deepseek-r1:free", "google/gemini-2.0-pro-exp-02-05:free"]');
+        let savedModels = JSON.parse(localStorage.getItem('hvn_models') || '["google/gemini-2.0-flash-lite-preview-02-05:free", "deepseek/deepseek-r1:free"]');
         let activeModelId = localStorage.getItem('modelId') || savedModels[0];
 
         // IndexedDB Initialization
@@ -218,7 +238,6 @@
             });
         };
 
-        // UI Initialization
         window.onload = async () => {
             await initDB();
             chats = await dbLoadChats();
@@ -234,25 +253,21 @@
             lucide.createIcons();
         };
 
-        // --- Model Management Logic ---
         function updateModelUI() {
-            // Update the label in the chat box
-            const cleanName = activeModelId.split('/').pop().split(':')[0].replace(/-/g, ' ').toUpperCase();
+            const cleanName = activeModelId.split('/').pop().split(':')[0].replace(/(-free|-preview)/gi, '').replace(/-/g, ' ').toUpperCase();
             document.getElementById('activeModelLabel').innerText = cleanName;
             
-            // Update settings list
             const settingsList = document.getElementById('settingsModelList');
             settingsList.innerHTML = savedModels.map(m => `
-                <div class="flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/5">
-                    <span class="truncate pr-2 text-white">${m}</span>
-                    <button onclick="deleteModel('${m}')" class="text-red-400 hover:text-red-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                <div class="flex justify-between items-center bg-white/5 p-1.5 px-3 rounded-lg border border-white/5 mb-1">
+                    <span class="truncate pr-2 text-white text-[10px] opacity-70">${m}</span>
+                    <button onclick="deleteModel('${m}')" class="text-red-400 hover:text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                 </div>
             `).join('');
 
-            // Update Quick Switch Menu
             const quickMenu = document.getElementById('modelListItems');
             quickMenu.innerHTML = savedModels.map(m => {
-                const mName = m.split('/').pop().split(':')[0].replace(/-/g, ' ').toUpperCase();
+                const mName = m.split('/').pop().split(':')[0].replace(/(-free|-preview)/gi, '').replace(/-/g, ' ').toUpperCase();
                 return `
                     <div class="model-item ${m === activeModelId ? 'active' : ''} text-white text-xs" onclick="switchModel('${m}')">
                         <span>${mName}</span>
@@ -291,15 +306,13 @@
                 if (activeModelId === id) activeModelId = savedModels[0];
                 localStorage.setItem('hvn_models', JSON.stringify(savedModels));
                 updateModelUI();
-            } else { alert("At least one model is required!"); }
+            } else { alert("Minimum one model required!"); }
         }
 
-        // --- Core Chat Functionality ---
         async function sendMessage() {
             const input = document.getElementById('userInput');
             const userText = input.value.trim();
             const apiKey = localStorage.getItem('apiKey');
-            
             if (!userText && !pendingFileContent && !pendingImage) return;
             if (!apiKey) { alert("Please set API Key in Settings!"); toggleSettings(); return; }
 
@@ -331,7 +344,7 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error?.message || "Unknown error occurred");
+                    throw new Error(errorData.error?.message || "Connection Failed");
                 }
 
                 const reader = response.body.getReader();
@@ -361,9 +374,7 @@
                 messages.push({ role: "assistant", content: fullAiResponse, model: currentModel });
                 saveToHistory();
             } catch (err) {
-                if (err.name !== 'AbortError') {
-                    aiContentSpan.innerHTML = `<span class="text-red-400 font-bold">⚠️ Error: ${err.message}</span>`;
-                }
+                if (err.name !== 'AbortError') aiContentSpan.innerHTML = `<span class="text-red-400 font-bold text-xs">⚠️ Error: ${err.message}</span>`;
             } finally {
                 isGenerating = false;
                 document.getElementById('sendIcon').setAttribute('data-lucide', 'send-horizontal');
@@ -372,7 +383,6 @@
             }
         }
 
-        // --- Formatting & UI Helpers ---
         function formatResponse(text) {
             const renderer = new marked.Renderer();
             renderer.code = (item) => {
@@ -385,19 +395,16 @@
             return marked.parse(text.replace(/<think>([\s\S]*?)<\/think>/gi, `<details class="thinking-box"><summary>Thinking...</summary><div>$1</div></details>`));
         }
 
-        function postProcessMessage(el) { 
-            Prism.highlightAllUnder(el); 
-            renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false }); 
-        }
+        function postProcessMessage(el) { Prism.highlightAllUnder(el); renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false }); }
 
         function appendMessage(role, content, model) {
             const view = document.getElementById('chatView');
             const div = document.createElement('div');
-            div.className = `${role === 'user' ? 'user-msg' : 'ai-msg'} message`;
+            div.className = `${role === 'user' ? 'user-msg' : 'ai-msg'} message shadow-sm`;
             if (role === 'assistant') {
                 const id = 'msg-' + Date.now();
-                const mName = (model||'').split('/').pop().split(':')[0].toUpperCase();
-                div.innerHTML = `<div id="${id}" class="ai-content text-white">${formatResponse(content)}</div><div class="msg-footer"><div class="msg-actions"><button onclick="copyText('${id}')" class="text-gray-400"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button><button onclick="speakText('${id}')" class="text-gray-400"><i data-lucide="volume-2" class="w-3.5 h-3.5"></i></button></div><span class="model-tag">${mName}</span></div>`;
+                const mName = (model||'').split('/').pop().split(':')[0].replace(/(-free|-preview)/gi, '').toUpperCase();
+                div.innerHTML = `<div id="${id}" class="ai-content text-white">${formatResponse(content)}</div><div class="msg-footer"><div class="msg-actions"><button onclick="copyText('${id}')" title="Copy"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button><button onclick="speakText('${id}')" title="Speak"><i data-lucide="volume-2" class="w-3.5 h-3.5"></i></button></div><span class="model-tag">${mName}</span></div>`;
             } else div.innerText = content;
             view.appendChild(div);
             view.scrollTop = view.scrollHeight;
@@ -406,7 +413,6 @@
             return div;
         }
 
-        // --- File & Input handling ---
         async function handleFileUpload(input) {
             const file = input.files[0]; if (!file) return;
             const area = document.getElementById('filePreviewArea');
@@ -428,7 +434,7 @@
                 }; reader.readAsArrayBuffer(file);
             } else if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
-                reader.onload = (e) => { pendingImage = e.target.result; area.innerHTML = `<div class="file-card text-white"><img src="${pendingImage}" class="rounded"><span>${file.name}</span><button onclick="clearFile()" class="remove-btn">×</button></div>`; lucide.createIcons(); };
+                reader.onload = (e) => { pendingImage = e.target.result; area.innerHTML = `<div class="file-card text-white"><img src="${pendingImage}" class="rounded h-6 w-6 object-cover"><span>${file.name}</span><button onclick="clearFile()" class="remove-btn">×</button></div>`; lucide.createIcons(); };
                 reader.readAsDataURL(file);
             } else {
                 const reader = new FileReader();
@@ -437,7 +443,6 @@
             }
         }
 
-        // --- Basic Utils ---
         function handleInput(t) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
         function clearInput() { const i = document.getElementById('userInput'); i.value = ""; handleInput(i); }
         function handleSendClick() { isGenerating ? abortController.abort() : sendMessage(); }
@@ -447,7 +452,12 @@
         function copyCode(btn) { navigator.clipboard.writeText(btn.closest('pre').querySelector('code').innerText); btn.innerText = "Copied!"; setTimeout(() => btn.innerText = "Copy", 2000); }
         function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
         function toggleKeyField() { const el = document.getElementById('apiKey'); el.type = el.type==='password'?'text':'password'; document.getElementById('apiKeyBtn').innerText = el.type==='text'?'LOCK':'EDIT'; el.readOnly = el.type!=='text'; }
-        function saveSettings() { localStorage.setItem('apiKey', document.getElementById('apiKey').value); localStorage.setItem('sysPrompt', document.getElementById('sysPrompt').value); toggleSettings(); }
+        function saveSettings() {
+            localStorage.setItem('apiKey', document.getElementById('apiKey').value);
+            localStorage.setItem('modelId', activeModelId);
+            localStorage.setItem('sysPrompt', document.getElementById('sysPrompt').value);
+            toggleSettings();
+        }
         function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('theme', document.body.classList.contains('light-mode')?'light':'dark'); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('mobileOverlay').classList.toggle('hidden'); }
         
@@ -475,10 +485,14 @@
                 chats = await dbLoadChats(); currentChatId === id ? createNewChat() : renderHistory();
             }
         }
-        function createNewChat() { currentChatId = Date.now(); messages = []; document.getElementById('chatView').innerHTML = '<div class="ai-msg message p-4 border border-white/10 rounded-xl text-white">New session started. How can I help you?</div>'; renderHistory(); }
+        function createNewChat() { currentChatId = Date.now(); messages = []; document.getElementById('chatView').innerHTML = '<div class="ai-msg message p-4 border border-white/10 rounded-xl text-white">How can I help you today?</div>'; renderHistory(); }
         
         function initTTS() {
-            const loadVoices = () => { voices = speechSynthesis.getVoices(); const s = document.getElementById('voiceSelect'); s.innerHTML = voices.map((v, i) => `<option value="${i}">${v.name}</option>`).join(''); };
+            const loadVoices = () => { 
+                voices = speechSynthesis.getVoices(); 
+                const s = document.getElementById('voiceSelect'); 
+                s.innerHTML = voices.map((v, i) => `<option value="${i}">${v.name} (${v.lang})</option>`).join(''); 
+            };
             loadVoices(); if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
         }
         function speakText(id) {
@@ -487,7 +501,6 @@
             utterance.voice = voices[document.getElementById('voiceSelect').value];
             speechSynthesis.speak(utterance);
         }
-
         function filterHistory(v) { renderHistory(); }
     </script>
 </body>
