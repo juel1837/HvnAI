@@ -3,185 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HvnChat - AI Website Builder</title>
+    <title>HvnChat - Personal AI Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body {
-            height: 100dvh;
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            background-color: #0f172a;
-        }
-        .sidebar-transition { transition: transform 0.3s ease-in-out; }
+        body { height: 100dvh; min-height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background-color: #0f172a; font-family: 'Inter', sans-serif; }
+        .sidebar-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         @media (max-width: 1024px) {
-            .sidebar-mobile {
-                position: absolute;
-                z-index: 40;
-                height: 100%;
-                transform: translateX(-100%);
-            }
+            .sidebar-mobile { position: absolute; z-index: 50; height: 100%; transform: translateX(-100%); }
             .sidebar-mobile.open { transform: translateX(0); }
         }
-        /* Error Message Styling for better visibility */
-        #errorNotice {
-            display: none;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
-            background: #ef4444;
-            color: white;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-            max-width: 320px;
-            border: 2px solid #b91c1c;
-            font-weight: 600;
-        }
+        .chat-bubble { max-width: 85%; border-radius: 1.25rem; padding: 0.8rem 1.2rem; margin-bottom: 1rem; line-height: 1.5; }
+        .user-msg { background: #2563eb; color: white; align-self: flex-end; border-bottom-right-radius: 0.25rem; }
+        .ai-msg { background: #1e293b; color: #e2e8f0; align-self: flex-start; border-bottom-left-radius: 0.25rem; border: 1px solid #334155; }
+        #errorNotice { display: none; position: fixed; top: 20px; right: 20px; z-index: 100; background: #ef4444; color: white; padding: 1rem; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); max-width: 320px; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="text-gray-100">
 
-    <div id="errorNotice">
+    <div id="errorNotice" class="shadow-2xl border-2 border-red-700">
         <div class="flex items-start gap-3">
-            <i data-lucide="alert-circle" class="shrink-0"></i>
-            <div>
-                <p class="text-sm font-bold uppercase tracking-tight">System Error</p>
-                <p id="errorText" class="text-sm font-medium mt-1 opacity-90"></p>
+            <i data-lucide="alert-octagon" class="shrink-0"></i>
+            <div class="flex-1">
+                <p class="text-xs font-bold uppercase">System Alert</p>
+                <p id="errorText" class="text-sm mt-1 opacity-90 font-medium"></p>
             </div>
-            <button onclick="hideError()" class="hover:bg-black/20 rounded p-0.5"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <button onclick="hideError()"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
     </div>
 
     <div class="flex flex-1 overflow-hidden relative">
         
-        <aside id="sidebar" class="sidebar-mobile lg:relative w-72 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0 sidebar-transition">
-            <div class="p-4 flex items-center justify-between">
-                <span class="font-bold text-xl text-blue-500 tracking-tight">HvnChat</span>
-                <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white">
-                    <i data-lucide="x"></i>
-                </button>
+        <aside id="sidebar" class="sidebar-mobile lg:relative w-72 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0 sidebar-transition shadow-2xl">
+            <div class="p-5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="font-black text-xl tracking-tighter text-white">HvnChat</span>
+                </div>
+                <button onclick="toggleSidebar()" class="lg:hidden text-gray-500 hover:text-white"><i data-lucide="chevron-left"></i></button>
             </div>
             
             <div class="px-4 mb-4">
-                <button onclick="createNewProject()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg">
-                    <i data-lucide="plus" class="w-5 h-5"></i> New Project
+                <button onclick="createNewChat()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-900/20">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i> New Chat
                 </button>
             </div>
             
-            <div id="projectList" class="flex-1 overflow-y-auto px-4 space-y-2 pb-4">
+            <div id="historyList" class="flex-1 overflow-y-auto px-4 space-y-2 pb-6">
                 </div>
 
-            <div class="p-4 border-t border-gray-800 bg-gray-900/50">
-                <button onclick="toggleSettings()" class="flex items-center gap-3 text-gray-400 hover:text-white hover:bg-gray-800 p-3 rounded-xl transition-all w-full">
-                    <i data-lucide="settings" class="w-5 h-5"></i> Settings
+            <div class="p-4 border-t border-gray-800 bg-gray-900/80">
+                <button onclick="toggleSettings()" class="flex items-center gap-3 text-gray-400 hover:text-white hover:bg-gray-800 p-3 rounded-xl transition-all w-full font-medium">
+                    <i data-lucide="settings-2" class="w-5 h-5"></i> Settings
                 </button>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col min-w-0 bg-gray-950">
-            <header class="h-16 border-b border-gray-800 flex items-center justify-between px-4 bg-gray-900/30">
-                <div class="flex items-center gap-3">
-                    <button onclick="toggleSidebar()" class="p-2 hover:bg-gray-800 rounded-lg lg:hidden transition">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
-                    </button>
-                    <div class="hidden sm:flex gap-1.5">
-                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    </div>
+            <header class="h-16 border-b border-gray-800 flex items-center justify-between px-4 bg-gray-900/40 backdrop-blur-md">
+                <button onclick="toggleSidebar()" class="p-2.5 hover:bg-gray-800 rounded-xl lg:hidden transition">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+
+                <div class="flex items-center gap-1 bg-black/40 p-1.5 rounded-2xl border border-gray-800">
+                    <button onclick="setView('chat')" id="btnChat" class="px-4 py-1.5 rounded-xl bg-blue-600 text-xs font-bold transition-all">CHAT</button>
+                    <button onclick="setView('preview')" id="btnPreview" class="px-4 py-1.5 rounded-xl text-gray-500 hover:text-gray-300 text-xs font-bold transition-all">PREVIEW</button>
+                    <button onclick="setView('code')" id="btnCode" class="px-4 py-1.5 rounded-xl text-gray-500 hover:text-gray-300 text-xs font-bold transition-all">CODE</button>
                 </div>
 
-                <div class="flex items-center gap-1 bg-black p-1 rounded-xl border border-gray-800">
-                    <button onclick="setView('preview')" id="btnPreview" class="px-5 py-1.5 rounded-lg bg-blue-600 text-sm font-bold transition-all">Preview</button>
-                    <button onclick="setView('code')" id="btnCode" class="px-5 py-1.5 rounded-lg hover:bg-gray-800 text-sm font-bold transition-all text-gray-400">Code</button>
-                </div>
-
-                <button onclick="downloadCode()" class="p-2 hover:bg-gray-800 rounded-full transition-all text-blue-500">
-                    <i data-lucide="download" class="w-5 h-5"></i>
+                <button onclick="downloadCode()" class="p-2.5 hover:bg-gray-800 rounded-full transition text-blue-500" title="Export Code">
+                    <i data-lucide="file-down" class="w-5 h-5"></i>
                 </button>
             </header>
 
-            <div class="flex-1 relative bg-white overflow-hidden">
-                <iframe id="previewFrame" class="w-full h-full"></iframe>
-                <div id="codeEditor" class="absolute inset-0 bg-[#0d1117] hidden">
-                    <textarea id="rawCode" class="w-full h-full p-6 font-mono text-sm bg-transparent text-blue-300 outline-none resize-none" readonly></textarea>
+            <div class="flex-1 relative overflow-hidden flex flex-col">
+                <div id="chatView" class="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col space-y-2">
+                    <div class="ai-msg chat-bubble">
+                        Hello! I am <strong>HvnChat</strong>. How can I help you today? I can chat, solve problems, or build websites for you.
+                    </div>
+                </div>
+
+                <div id="previewView" class="absolute inset-0 bg-white hidden">
+                    <iframe id="previewFrame" class="w-full h-full border-none"></iframe>
+                </div>
+
+                <div id="codeView" class="absolute inset-0 bg-[#0d1117] hidden">
+                    <textarea id="rawCode" class="w-full h-full p-6 font-mono text-sm bg-transparent text-blue-300 outline-none resize-none" readonly placeholder="No code generated yet..."></textarea>
                 </div>
                 
-                <div id="loader" class="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center hidden z-20">
-                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mb-4"></div>
-                    <p class="text-blue-500 font-bold animate-pulse uppercase tracking-widest text-xs">AI is building...</p>
+                <div id="loader" class="absolute inset-0 bg-gray-950/80 backdrop-blur-sm flex flex-col items-center justify-center hidden z-30">
+                    <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+                    <p class="text-blue-500 font-black text-[10px] uppercase tracking-[0.3em]">HvnChat Thinking</p>
                 </div>
             </div>
 
-            <footer class="p-4 border-t border-gray-800 bg-gray-900 shrink-0">
-                <div class="max-w-4xl mx-auto flex gap-3">
-                    <textarea id="userInput" rows="1" 
-                        placeholder="Describe the website you want to build..." 
-                        class="flex-1 bg-gray-800 border border-gray-700 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-500 resize-none text-white transition-all overflow-hidden"
-                        oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
-                    
-                    <button id="sendBtn" onclick="generateWebsite()" class="bg-blue-600 hover:bg-blue-700 active:scale-95 p-3 rounded-xl transition-all self-end shadow-xl">
-                        <i data-lucide="zap" class="w-6 h-6 text-white"></i>
+            <footer class="p-4 bg-gray-900 border-t border-gray-800 shrink-0">
+                <div class="max-w-4xl mx-auto flex items-end gap-3">
+                    <div class="flex-1 bg-gray-800 border border-gray-700 rounded-2xl focus-within:ring-2 focus-within:ring-blue-600/40 transition-all overflow-hidden">
+                        <textarea id="userInput" rows="1" 
+                            placeholder="Ask me anything..." 
+                            class="w-full bg-transparent py-3.5 px-4 focus:outline-none resize-none text-white text-sm max-h-40"
+                            oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
+                    </div>
+                    <button id="sendBtn" onclick="sendMessage()" class="bg-blue-600 hover:bg-blue-700 active:scale-90 p-4 rounded-2xl transition-all shadow-xl shadow-blue-900/20">
+                        <i data-lucide="send-horizontal" class="w-5 h-5 text-white"></i>
                     </button>
                 </div>
             </footer>
         </main>
     </div>
 
-    <div id="settingsModal" class="fixed inset-0 bg-black/90 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-gray-900 w-full max-w-md rounded-2xl border border-gray-800 shadow-2xl">
-            <div class="p-6">
-                <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                    <i data-lucide="sliders-horizontal" class="text-blue-500"></i> Settings
+    <div id="settingsModal" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-gray-900 w-full max-w-sm rounded-3xl border border-gray-800 shadow-2xl overflow-hidden">
+            <div class="p-8">
+                <h2 class="text-xl font-black mb-8 flex items-center gap-3">
+                    <i data-lucide="settings" class="text-blue-500"></i> CONFIGURATION
                 </h2>
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">AI Model ID</label>
-                        <input id="modelId" type="text" placeholder="e.g. google/gemini-2.0-flash-exp:free" class="w-full bg-black border border-gray-800 rounded-lg p-3 text-sm focus:border-blue-600 outline-none transition-all">
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Model Identifier</label>
+                        <input id="modelId" type="text" class="w-full bg-black/50 border border-gray-800 rounded-xl p-3.5 text-sm focus:border-blue-600 outline-none transition-all font-mono text-blue-400">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">OpenRouter API Key</label>
-                        <input id="apiKey" type="password" placeholder="Enter your sk-or-... key" class="w-full bg-black border border-gray-800 rounded-lg p-3 text-sm focus:border-blue-600 outline-none transition-all">
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">OpenRouter Key</label>
+                        <input id="apiKey" type="password" placeholder="sk-or-..." class="w-full bg-black/50 border border-gray-800 rounded-xl p-3.5 text-sm focus:border-blue-600 outline-none transition-all font-mono">
                     </div>
                 </div>
             </div>
-            <div class="bg-gray-800/50 p-4 flex justify-end">
-                <button onclick="toggleSettings()" class="bg-blue-600 hover:bg-blue-700 px-8 py-2.5 rounded-xl font-bold transition-all shadow-lg">Save Config</button>
+            <div class="p-4 bg-gray-800/50 flex justify-end">
+                <button onclick="toggleSettings()" class="bg-blue-600 hover:bg-blue-700 px-10 py-3 rounded-2xl font-bold transition-all shadow-lg active:scale-95">SAVE</button>
             </div>
         </div>
     </div>
 
     <script>
         const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-        const SYSTEM_PROMPT = "You are an expert web developer. Output ONLY raw, valid, single-file HTML code using Tailwind CSS CDN. Do NOT use any markdown backticks. Start with <!DOCTYPE html>.";
+        const SYSTEM_PROMPT = "You are HvnChat, a helpful and smart AI assistant. You can chat freely, solve problems, and write code. If a user asks for a website or UI, provide the full, standalone HTML/Tailwind code. Otherwise, respond in text. If you provide code, ensure it is high quality.";
         
-        let projects = JSON.parse(localStorage.getItem('hvn_projects') || '[]');
-        let currentCode = "";
+        let chats = JSON.parse(localStorage.getItem('hvn_chats') || '[]');
+        let currentChatId = null;
+        let messages = [];
 
         lucide.createIcons();
 
         window.onload = () => {
             document.getElementById('apiKey').value = localStorage.getItem('apiKey') || "";
             document.getElementById('modelId').value = localStorage.getItem('modelId') || "deepseek/deepseek-r1:free";
-            renderProjects();
+            renderHistory();
         };
 
         function showError(msg) {
             const notice = document.getElementById('errorNotice');
-            const text = document.getElementById('errorText');
-            text.innerText = msg;
+            document.getElementById('errorText').innerText = msg;
             notice.style.display = 'block';
-            setTimeout(hideError, 8000); // Auto hide after 8s
+            setTimeout(hideError, 6000);
         }
 
-        function hideError() {
-            document.getElementById('errorNotice').style.display = 'none';
-        }
-
+        function hideError() { document.getElementById('errorNotice').style.display = 'none'; }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
         function toggleSettings() {
@@ -194,133 +176,151 @@
         }
 
         function setView(view) {
-            const preview = document.getElementById('previewFrame');
-            const editor = document.getElementById('codeEditor');
-            const btnP = document.getElementById('btnPreview');
-            const btnC = document.getElementById('btnCode');
-
-            if (view === 'preview') {
-                preview.classList.remove('hidden'); editor.classList.add('hidden');
-                btnP.className = "px-5 py-1.5 rounded-lg bg-blue-600 text-sm font-bold transition-all";
-                btnC.className = "px-5 py-1.5 rounded-lg hover:bg-gray-800 text-sm font-bold transition-all text-gray-400";
-            } else {
-                preview.classList.add('hidden'); editor.classList.remove('hidden');
-                btnC.className = "px-5 py-1.5 rounded-lg bg-blue-600 text-sm font-bold transition-all";
-                btnP.className = "px-5 py-1.5 rounded-lg hover:bg-gray-800 text-sm font-bold transition-all text-gray-400";
-            }
+            const views = { chat: 'chatView', preview: 'previewView', code: 'codeView' };
+            const btns = { chat: 'btnChat', preview: 'btnPreview', code: 'btnCode' };
+            
+            Object.keys(views).forEach(v => {
+                document.getElementById(views[v]).classList.toggle('hidden', v !== view);
+                const btn = document.getElementById(btns[v]);
+                if (v === view) {
+                    btn.className = "px-4 py-1.5 rounded-xl bg-blue-600 text-xs font-bold transition-all text-white";
+                } else {
+                    btn.className = "px-4 py-1.5 rounded-xl text-gray-500 hover:text-gray-300 text-xs font-bold transition-all";
+                }
+            });
         }
 
-        async function generateWebsite() {
-            const prompt = document.getElementById('userInput').value;
-            const apiKey = document.getElementById('apiKey').value;
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            const key = document.getElementById('apiKey').value;
             const model = document.getElementById('modelId').value;
 
-            if (!navigator.onLine) { showError("No internet connection detected."); return; }
-            if (!apiKey) { showError("API Key is missing! Go to settings."); toggleSettings(); return; }
-            if (!prompt) return;
+            if (!text) return;
+            if (!key) { showError("Please set your API Key in Settings."); toggleSettings(); return; }
 
-            hideError();
+            // Add User Message
+            appendMessage('user', text);
+            input.value = '';
+            input.style.height = 'auto';
             showLoader(true);
 
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         model: model,
-                        messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content: prompt }]
+                        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages.map(m => ({ role: m.role, content: m.content })), { role: "user", content: text }]
                     })
                 });
 
-                const rawResponse = await response.text();
-                
-                if (!response.ok) {
-                    let errorDetails = rawResponse;
-                    try {
-                        const parsedError = JSON.parse(rawResponse);
-                        errorDetails = parsedError.error?.message || rawResponse;
-                    } catch(e) {}
-                    showError("API Error: " + errorDetails);
-                    showLoader(false);
-                    return;
-                }
+                const raw = await response.text();
+                if (!response.ok) { throw new Error(JSON.parse(raw).error?.message || "API Error"); }
 
-                const data = JSON.parse(rawResponse);
-                let content = data.choices[0].message.content;
-                currentCode = content.replace(/```html|```/g, "").trim();
+                const data = JSON.parse(raw);
+                const aiResponse = data.choices[0].message.content;
                 
-                updateDisplay();
-                saveProject(prompt.substring(0, 30), currentCode);
-                document.getElementById('userInput').value = "";
-                document.getElementById('userInput').style.height = 'auto';
+                appendMessage('assistant', aiResponse);
+                processAIResponse(aiResponse);
 
-            } catch (error) {
-                showError("Request Failed: " + error.message);
+            } catch (err) {
+                showError(err.message);
             } finally {
                 showLoader(false);
-                if (window.innerWidth < 1024) toggleSidebar();
             }
         }
 
-        function updateDisplay() {
-            const iframe = document.getElementById('previewFrame');
-            document.getElementById('rawCode').value = currentCode;
-            const blob = new Blob([currentCode], { type: 'text/html' });
-            iframe.src = URL.createObjectURL(blob);
+        function appendMessage(role, content) {
+            const chatView = document.getElementById('chatView');
+            const div = document.createElement('div');
+            div.className = `${role === 'user' ? 'user-msg' : 'ai-msg'} chat-bubble text-sm shadow-sm`;
+            div.innerText = content;
+            chatView.appendChild(div);
+            chatView.scrollTop = chatView.scrollHeight;
+            messages.push({ role, content });
+            saveCurrentChat();
         }
 
-        function saveProject(name, code) {
-            const project = { id: Date.now(), name, code };
-            projects.unshift(project);
-            localStorage.setItem('hvn_projects', JSON.stringify(projects));
-            renderProjects();
-        }
-
-        function deleteProject(id, event) {
-            event.stopPropagation();
-            if (confirm("Permanently delete this project?")) {
-                projects = projects.filter(p => p.id !== id);
-                localStorage.setItem('hvn_projects', JSON.stringify(projects));
-                renderProjects();
+        function processAIResponse(content) {
+            if (content.includes('<!DOCTYPE html>') || content.includes('<html')) {
+                const code = content.replace(/```html|```/g, "").trim();
+                document.getElementById('rawCode').value = code;
+                const blob = new Blob([code], { type: 'text/html' });
+                document.getElementById('previewFrame').src = URL.createObjectURL(blob);
+                // Switch view if it looks like a website
+                setView('preview');
             }
         }
 
-        function renderProjects() {
-            const list = document.getElementById('projectList');
-            list.innerHTML = projects.map(p => `
-                <div onclick="loadProject(${p.id})" class="group flex items-center justify-between p-3.5 text-sm bg-gray-800/40 hover:bg-gray-800 rounded-xl cursor-pointer transition-all border border-transparent hover:border-gray-700">
-                    <span class="truncate pr-2 text-gray-300 group-hover:text-white font-medium">${p.name}</span>
-                    <button onclick="deleteProject(${p.id}, event)" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-all">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
+        function saveCurrentChat() {
+            if (!currentChatId) currentChatId = Date.now();
+            const existingIdx = chats.findIndex(c => c.id === currentChatId);
+            const chatData = { id: currentChatId, title: messages[0].content.substring(0, 25), messages: [...messages] };
+            
+            if (existingIdx > -1) chats[existingIdx] = chatData;
+            else chats.unshift(chatData);
+            
+            localStorage.setItem('hvn_chats', JSON.stringify(chats));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = chats.map(c => `
+                <div onclick="loadChat(${c.id})" class="group flex items-center justify-between p-3.5 text-xs bg-gray-800/30 hover:bg-gray-800 rounded-xl cursor-pointer transition-all border border-transparent hover:border-gray-700">
+                    <span class="truncate font-medium text-gray-400 group-hover:text-white">${c.title}</span>
+                    <button onclick="deleteChat(${c.id}, event)" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                 </div>
             `).join('');
             lucide.createIcons();
         }
 
-        function loadProject(id) {
-            const p = projects.find(item => item.id === id);
-            if (p) {
-                currentCode = p.code; updateDisplay(); setView('preview');
-                if (window.innerWidth < 1024) toggleSidebar();
-            }
-        }
-
-        function createNewProject() {
-            if (currentCode && !confirm("Current progress will be lost. Start new?")) return;
-            currentCode = ""; updateDisplay();
-            document.getElementById('userInput').value = "";
+        function loadChat(id) {
+            const chat = chats.find(c => c.id === id);
+            if (!chat) return;
+            currentChatId = id;
+            messages = [...chat.messages];
+            const chatView = document.getElementById('chatView');
+            chatView.innerHTML = '';
+            messages.forEach(m => {
+                const div = document.createElement('div');
+                div.className = `${m.role === 'user' ? 'user-msg' : 'ai-msg'} chat-bubble text-sm`;
+                div.innerText = m.content;
+                chatView.appendChild(div);
+            });
+            const lastMsg = messages[messages.length - 1].content;
+            if (lastMsg.includes('<html')) processAIResponse(lastMsg);
+            else setView('chat');
             if (window.innerWidth < 1024) toggleSidebar();
         }
 
+        function createNewChat() {
+            currentChatId = null;
+            messages = [];
+            document.getElementById('chatView').innerHTML = '<div class="ai-msg chat-bubble">New Session Started. How can I help?</div>';
+            document.getElementById('rawCode').value = '';
+            document.getElementById('previewFrame').src = 'about:blank';
+            setView('chat');
+            if (window.innerWidth < 1024) toggleSidebar();
+        }
+
+        function deleteChat(id, e) {
+            e.stopPropagation();
+            if (confirm("Delete this conversation?")) {
+                chats = chats.filter(c => c.id !== id);
+                localStorage.setItem('hvn_chats', JSON.stringify(chats));
+                if (currentChatId === id) createNewChat();
+                renderHistory();
+            }
+        }
+
         function downloadCode() {
-            if (!currentCode) return showError("No code to download yet.");
+            const code = document.getElementById('rawCode').value;
+            if (!code) return showError("No code to download.");
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([currentCode], { type: 'text/html' }));
-            a.download = 'hvnchat-export.html';
+            a.href = URL.createObjectURL(new Blob([code], { type: 'text/html' }));
+            a.download = 'hvnchat-code.html';
             a.click();
         }
 
@@ -330,5 +330,4 @@
         }
     </script>
 </body>
-                        </html>
-                        
+</html>
