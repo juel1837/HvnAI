@@ -254,61 +254,60 @@
             margin-right: 8px;
             font-weight: bold;
         }
-    </style>
 
-    /* Stop Button */
-    #stopBtn {
-    display: none;
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-10px);
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    backdrop-filter: blur(4px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-    z-index: 50;
-    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
+        /* Stop Button */
+        #stopBtn {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            z-index: 50;
+            animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-    @keyframes popIn {
-    from {
-    transform: translateX(-50%) translateY(10px) scale(0.8);
-    opacity: 0;
-    }
+        @keyframes popIn {
+            from {
+                transform: translateX(-50%) translateY(10px) scale(0.8);
+                opacity: 0;
+            }
 
-    to {
-    transform: translateX(-50%) translateY(-10px) scale(1);
-    opacity: 1;
-    }
-    }
+            to {
+                transform: translateX(-50%) translateY(-10px) scale(1);
+                opacity: 1;
+            }
+        }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-    width: 6px;
-    }
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
 
-    ::-webkit-scrollbar-track {
-    background: transparent;
-    }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
 
-    ::-webkit-scrollbar-thumb {
-    background: rgba(100, 116, 139, 0.3);
-    border-radius: 10px;
-    }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.3);
+            border-radius: 10px;
+        }
 
-    ::-webkit-scrollbar-thumb:hover {
-    background: rgba(100, 116, 139, 0.5);
-    }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.5);
+        }
 
-    details.thinking-box {
-    border-left: 3px solid #3b82f6;
-    background: rgba(59, 130, 246, 0.05);
-    }
+        details.thinking-box {
+            border-left: 3px solid #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
     </style>
 </head>
 
