@@ -149,70 +149,166 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
-        /* Image Preview */
-        .img-preview {
-            max-width: 200px;
-            max-height: 200px;
+        /* File Preview Area */
+        #filePreviewArea {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 10px;
+            min-height: 0;
+        }
+
+        .file-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border-radius: 12px;
-            margin-bottom: 8px;
-            border: 2px solid rgba(59, 130, 246, 0.5);
-            display: none;
-            object-fit: cover;
-        }
-
-        /* Stop Button */
-        #stopBtn {
-            display: none;
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-10px);
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-size: 0.85rem;
-            font-weight: bold;
-            backdrop-filter: blur(4px);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-            z-index: 50;
-            animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--text);
+            position: relative;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        @keyframes popIn {
+        .file-card img {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .file-card .file-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-card .file-name {
+            font-weight: 500;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-card .file-type {
+            font-size: 0.7em;
+            opacity: 0.7;
+        }
+
+        .file-card .remove-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 5px;
+        }
+
+        .file-card .remove-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        @keyframes slideUp {
             from {
-                transform: translateX(-50%) translateY(10px) scale(0.8);
                 opacity: 0;
+                transform: translateY(10px);
             }
 
             to {
-                transform: translateX(-50%) translateY(-10px) scale(1);
                 opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
+        /* Help Modal Specifics */
+        .step-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
         }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
+        .step-num {
+            background: #3b82f6;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            margin-right: 8px;
+            font-weight: bold;
         }
+    </style>
 
-        ::-webkit-scrollbar-thumb {
-            background: rgba(100, 116, 139, 0.3);
-            border-radius: 10px;
-        }
+    /* Stop Button */
+    #stopBtn {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    z-index: 50;
+    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(100, 116, 139, 0.5);
-        }
+    @keyframes popIn {
+    from {
+    transform: translateX(-50%) translateY(10px) scale(0.8);
+    opacity: 0;
+    }
 
-        details.thinking-box {
-            border-left: 3px solid #3b82f6;
-            background: rgba(59, 130, 246, 0.05);
-        }
+    to {
+    transform: translateX(-50%) translateY(-10px) scale(1);
+    opacity: 1;
+    }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+    width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+    background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.3);
+    border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.5);
+    }
+
+    details.thinking-box {
+    border-left: 3px solid #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
+    }
     </style>
 </head>
 
@@ -248,9 +344,13 @@
 
             <div id="historyList" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
 
-            <div class="p-3 border-t border-[var(--border)]">
+            <div class="p-3 border-t border-[var(--border)] space-y-1">
+                <button onclick="toggleHelp()"
+                    class="flex items-center gap-3 text-gray-400 w-full p-2 text-xs hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition">
+                    <i data-lucide="circle-help" class="w-4 h-4"></i> ব্যবহার বিধি (How to Use)
+                </button>
                 <button onclick="toggleSettings()"
-                    class="flex items-center gap-3 text-gray-500 w-full p-2 text-xs hover:text-[var(--text)] transition">
+                    class="flex items-center gap-3 text-gray-500 w-full p-2 text-xs hover:text-[var(--text)] hover:bg-white/5 rounded-lg transition">
                     <i data-lucide="settings-2" class="w-4 h-4"></i> Settings
                 </button>
             </div>
@@ -267,13 +367,11 @@
                             <i data-lucide="square" class="w-3 h-3 inline mr-1"></i> Stop Generation
                         </button>
 
-                        <div id="fileIndicator"
-                            class="flex items-center gap-2 backdrop-blur-md bg-blue-600/20 border border-blue-500/30">
-                            <i data-lucide="file-check" class="w-3 h-3"></i>
-                            <span id="fileNameDisplay">File Ready</span>
-                            <img id="imagePreviewMini" class="w-6 h-6 rounded object-cover hidden" />
-                            <button onclick="clearFile()" class="ml-2 hover:text-white">×</button>
-                        </div>
+                        <!-- New File Preview Area -->
+                        <div id="filePreviewArea"></div>
+
+                        <!-- Old File Indicator (Hidden/Removed) -->
+                        <div id="fileIndicator" class="hidden"></div>
 
                         <div class="input-container flex items-end gap-2 p-3 transition-all">
                             <label class="p-2.5 cursor-pointer hover:bg-white/10 rounded-xl transition shrink-0 group">
@@ -371,6 +469,130 @@
         </div>
     </div>
 
+    <!-- Help Modal -->
+    <div id="helpModal"
+        class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div
+            class="w-full max-w-2xl rounded-2xl shadow-2xl p-6 space-y-5 transition-all max-h-[90vh] overflow-y-auto bg-[var(--settings-bg)] border border-[var(--border)]">
+            <div class="flex justify-between items-center border-b border-[var(--border)] pb-3">
+                <h2 class="font-bold flex items-center gap-2 text-[var(--text)] text-lg"><i data-lucide="book-open"
+                        class="text-green-500"></i> ব্যবহার বিধি (How to Use)</h2>
+                <button onclick="toggleHelp()"><i data-lucide="x"
+                        class="w-5 h-5 text-gray-500 hover:text-red-500 transition"></i></button>
+            </div>
+
+            <div class="space-y-4 text-sm text-[var(--text)] leading-relaxed">
+
+                <div class="step-card">
+                    <div class="font-bold mb-2 flex items-center text-blue-400"><span class="step-num">1</span> API Key
+                        সংগ্রহ করুন</div>
+                    <p class="opacity-80 mb-2">HvnChat ব্যবহার করতে আপনার একটি ফ্রী API Key প্রয়োজন। নিচের লিংকে গিয়ে
+                        একটি Key তৈরি করুন:</p>
+                    <a href="https://openrouter.ai/keys" target="_blank"
+                        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-bold transition">
+                        <i data-lucide="key" class="w-4 h-4"></i> Get Free API Key
+                    </a>
+                </div>
+
+                <div class="step-card">
+                    <div class="font-bold mb-2 flex items-center text-purple-400"><span class="step-num">2</span> সেটআপ
+                        করুন (Setup)</div>
+                    <ul class="list-disc pl-8 opacity-80 space-y-1">
+                        <li>বাম পাশের সাইডবার থেকে <strong>Settings</strong> এ ক্লিক করুন।</li>
+                        <li><strong>OpenRouter API Key</strong> বক্সে আপনার কপি করা Key টি পেস্ট করুন।</li>
+                        <li>নিচে থাকা <strong>Save Configuration</strong> বাটনে ক্লিক করুন।</li>
+                    </ul>
+                </div>
+
+                <div class="step-card">
+                    <div class="font-bold mb-2 flex items-center text-orange-400"><span class="step-num">3</span> মডেল
+                        নির্বাচন (Select Model)</div>
+                    <p class="opacity-80 mb-2">আপনি ফ্রী মডেল ব্যবহার করতে চাইলে Settings এর <strong>Model List</strong>
+                        থেকে ফ্রী মডেল খুজে নিন।</p>
+                    <div class="bg-black/20 p-2 rounded border border-white/10 font-mono text-xs text-gray-400">
+                        Tip: "free" লিখে সার্চ দিলে ফ্রী মডেলগুলো সহজে পাওয়া যাবে। (যেমন: google/gemini-pro:free)
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="font-bold mb-2 flex items-center text-pink-400"><span class="step-num">4</span> System
+                        Prompt কি?</div>
+                    <p class="opacity-80">
+                        System Prompt এর মাধ্যমে আপনি AI কে নির্দেশ দিতে পারেন সে কেমন আচরণ করবে। <br>
+                        উদাহরণ: <em>"তুমি একজন দক্ষ প্রোগ্রামার। সব উত্তর বাংলায় দিবে।"</em>
+                    </p>
+                </div>
+
+            </div>
+
+            <button onclick="toggleHelp()"
+                class="w-full bg-gray-700/50 hover:bg-gray-700 py-3 rounded-xl text-sm font-bold text-white shadow-lg transition">বুঝতে
+                পেরেছি (Close)</button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal"
+        class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div
+            class="w-full max-w-2xl rounded-2xl shadow-2xl p-6 space-y-5 transition-all max-h-[90vh] overflow-y-auto bg-[var(--settings-bg)] border border-[var(--border)]">
+            <div class="flex justify-between items-center border-b border-[var(--border)] pb-3">
+                <h2 class="font-bold flex items-center gap-2 text-[var(--text)] text-lg"><i data-lucide="book-open"
+                        class="text-green-500"></i> ব্যবহার বিধি (How to Use)</h2>
+                <button onclick="toggleHelp()"><i data-lucide="x"
+                        class="w-5 h-5 text-gray-500 hover:text-red-500 transition"></i></button>
+            </div>
+
+            <div class="space-y-4 text-sm text-[var(--text)] leading-relaxed">
+
+                <div class="step-card">
+                    <div class="font-bold mb-2 flex items-center text-blue-400"><span class="step-num">1</span> API Key
+                        সংগ্রহ করুন</div>
+                    <p class="opacity-80 mb-2">HvnChat ব্যবহার করতে আপনার একটি ফ্রী API Key প্রয়োজন। নিচের লিংকে গিয়ে
+                        একটি Key তৈরি করুন:</p>
+                    <a href="https://openrouter.ai/keys" target="_blank"
+                        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-bold transition">
+                        <i data-lucide="key" class="w-4 h-4"></i> Get Free API Key
+                    </a>
+                </div>
+
+                <div class="step-card">
+                    <div class="font-bold mb-2 flex items-center text-purple-400"><span class="step-num">2</span> সেটআপ
+                        করুন (Setup)</div>
+                    <ul class="list-disc pl-8 opacity-80 space-y-1">
+                        <li>বাম পাশের সাইডবার থেকে <strong>Settings</strong> এ ক্লিক করুন।</li>
+                        <li><strong>OpenRouter API Key</strong> বক্সে আপনার কপি করা Key টি পেস্ট করুন।</li>
+                        <li>নিচে থাকা <strong>Save Configuration</strong> বাটনে ক্লিক করুন।</li>
+                    </ul>
+                </div>
+
+                <div class="step-card">
+                    <div class="font-bold mb-2 flex items-center text-orange-400"><span class="step-num">3</span> মডেল
+                        নির্বাচন (Select Model)</div>
+                    <p class="opacity-80 mb-2">আপনি ফ্রী মডেল ব্যবহার করতে চাইলে Settings এর <strong>Model List</strong>
+                        থেকে ফ্রী মডেল খুজে নিন।</p>
+                    <div class="bg-black/20 p-2 rounded border border-white/10 font-mono text-xs text-gray-400">
+                        Tip: "free" লিখে সার্চ দিলে ফ্রী মডেলগুলো সহজে পাওয়া যাবে। (যেমন: google/gemini-pro:free)
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="font-bold mb-2 flex items-center text-pink-400"><span class="step-num">4</span> System
+                        Prompt কি?</div>
+                    <p class="opacity-80">
+                        System Prompt এর মাধ্যমে আপনি AI কে নির্দেশ দিতে পারেন সে কেমন আচরণ করবে। <br>
+                        উদাহরণ: <em>"তুমি একজন দক্ষ প্রোগ্রামার। সব উত্তর বাংলায় দিবে।"</em>
+                    </p>
+                </div>
+
+            </div>
+
+            <button onclick="toggleHelp()"
+                class="w-full bg-gray-700/50 hover:bg-gray-700 py-3 rounded-xl text-sm font-bold text-white shadow-lg transition">বুঝতে
+                পেরেছি (Close)</button>
+        </div>
+    </div>
+
     <script>
         let chats = JSON.parse(localStorage.getItem('hvn_chats') || '[]');
         const defaultModels = [
@@ -433,20 +655,39 @@
 
             reader.onload = (e) => {
                 const result = e.target.result;
+                const previewArea = document.getElementById('filePreviewArea');
+
+                // Clear previous (Single file mode for now, but UI supports list)
+                previewArea.innerHTML = "";
+
+                const cardId = 'file-' + Date.now();
+                const card = document.createElement('div');
+                card.className = 'file-card';
+                card.id = cardId;
+
+                let iconOrImg = '';
 
                 if (isImage) {
-                    pendingImage = result; // Base64 Data URL
+                    pendingImage = result;
                     pendingFileContent = "";
-                    document.getElementById('imagePreviewMini').src = result;
-                    document.getElementById('imagePreviewMini').classList.remove('hidden');
+                    iconOrImg = `<img src="${result}" alt="preview">`;
                 } else {
                     pendingFileContent = `\n[File: ${file.name}]\n\`\`\`\n${result}\n\`\`\`\n`;
                     pendingImage = null;
-                    document.getElementById('imagePreviewMini').classList.add('hidden');
+                    iconOrImg = `<div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center"><i data-lucide="file-text" class="w-5 h-5 text-blue-400"></i></div>`;
                 }
 
-                document.getElementById('fileNameDisplay').innerText = file.name;
-                document.getElementById('fileIndicator').style.display = "flex";
+                card.innerHTML = `
+                    ${iconOrImg}
+                    <div class="file-info">
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-type">${isImage ? 'Image' : 'Text File'}</span>
+                    </div>
+                    <button onclick="clearFile()" class="remove-btn"><i data-lucide="x" class="w-3 h-3"></i></button>
+                `;
+
+                previewArea.appendChild(card);
+                lucide.createIcons();
             };
 
             if (isImage) reader.readAsDataURL(file);
@@ -456,9 +697,8 @@
         function clearFile() {
             pendingFileContent = "";
             pendingImage = null;
-            document.getElementById('fileIndicator').style.display = "none";
+            document.getElementById('filePreviewArea').innerHTML = "";
             document.getElementById('fileInput').value = "";
-            document.getElementById('imagePreviewMini').classList.add('hidden');
         }
 
         async function sendMessage() {
@@ -706,6 +946,7 @@
         // --- Reused & Utility ---
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
         function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
+        function toggleHelp() { document.getElementById('helpModal').classList.toggle('hidden'); }
         function toggleKeyField() {
             const el = document.getElementById('apiKey');
             el.type = el.type === 'password' ? 'text' : 'password';
