@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HvnChat Ultra V3.3</title>
+    <title>HvnChat Ultra V3.4</title>
     
     <meta name="theme-color" content="#020617">
     <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkh2bkNoYXQgVWx0cmEiLAogICJzaG9ydF9uYW1lIjogIkh2bkNoYXQiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzAyMDYxNyIsCiAgInRoZW1lX2NvbG9yIjogIzAyMDYxNyIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGF0aWNvbi5jb20vNTEyLzg5NDMvODk0MzM3Ny5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdCn0=">
@@ -47,26 +47,30 @@
 
         body { height: 100dvh; display: flex; flex-direction: column; background: var(--bg-gradient); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; }
         
-        /* Fixed Sidebar Logic */
+        /* Fixed Sidebar logic for PC Hide issue */
         aside { 
             background: var(--sidebar-bg); 
             border-right: var(--glass-border); 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            transition: width 0.3s ease, opacity 0.2s ease; 
             z-index: 50; 
             width: 260px;
+            overflow: hidden; /* Prevents text bleeding when hidden */
         }
+        
+        aside * { white-space: nowrap; } /* Prevents text wrapping during collapse */
 
         @media (min-width: 1024px) {
-            aside.closed { width: 0; transform: translateX(-100%); border-right: none; }
+            aside.closed { width: 0; border-right: none; opacity: 0; pointer-events: none; }
         }
 
         @media (max-width: 1024px) {
             aside { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); }
-            aside.open { transform: translateX(0); }
+            aside.open { transform: translateX(0); width: 280px; }
         }
         
         header { height: 50px; background: var(--glass-bg); backdrop-filter: blur(10px); border-bottom: var(--glass-border); }
         #chatView { flex: 1; overflow-y: auto; scroll-behavior: smooth; padding-bottom: 0.5rem; }
+        
         .message { max-width: 85%; margin-bottom: 1rem; animation: slideIn 0.3s ease-out; line-height: 1.6; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
         
@@ -79,7 +83,7 @@
         .msg-actions button:hover { opacity: 1; color: #60a5fa; }
         .model-tag { opacity: 0.3; font-family: monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; text-align: right; }
 
-        select#voiceSelect { background-color: var(--sidebar-bg) !important; color: var(--text) !important; border: 1px solid rgba(255,255,255,0.1); width: 100%; border-radius: 8px; padding: 6px; }
+        select#voiceSelect { background-color: #1e293b !important; color: white !important; border: 1px solid rgba(255,255,255,0.1); width: 100%; border-radius: 8px; padding: 6px; }
 
         #quickModelMenu {
             position: absolute; bottom: 100%; right: 0; margin-bottom: 8px;
@@ -87,7 +91,7 @@
             border-radius: 12px; width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
             z-index: 100; display: none;
         }
-        .model-item { padding: 10px 14px; cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .model-item { padding: 10px 14px; cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; color: white; }
         .model-item:hover { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
         .model-item.active { color: #3b82f6; font-weight: bold; }
 
@@ -98,7 +102,6 @@
 </head>
 
 <body class="dark-theme">
-    <!-- Mobile Overlay -->
     <div id="mobileOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden backdrop-blur-sm"></div>
 
     <header class="flex items-center justify-between px-3 shrink-0 z-50">
@@ -106,7 +109,7 @@
             <button onclick="toggleSidebar()" class="p-1 hover:bg-blue-500/10 rounded-md transition text-[var(--text)]">
                 <i data-lucide="menu" class="w-5 h-5"></i>
             </button>
-            <h1 class="font-bold text-md tracking-tight">HvnChat <span class="text-[9px] bg-blue-600 text-white px-1 rounded align-top">V3.3</span></h1>
+            <h1 class="font-bold text-md tracking-tight">HvnChat <span class="text-[9px] bg-blue-600 text-white px-1 rounded align-top">V3.4</span></h1>
         </div>
         <button onclick="toggleTheme()" class="p-2 hover:bg-blue-500/10 rounded-full transition text-[var(--text)]">
             <i id="themeIcon" data-lucide="moon" class="w-5 h-5"></i>
@@ -114,7 +117,6 @@
     </header>
 
     <div class="flex flex-1 overflow-hidden relative">
-        <!-- Sidebar -->
         <aside id="sidebar" class="flex flex-col h-full">
             <div class="p-3 pb-0">
                 <div class="flex items-center bg-black/20 border border-[var(--glass-border)] rounded-xl px-2 py-1.5 mb-2">
@@ -172,10 +174,7 @@
     <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="w-full max-w-sm rounded-2xl p-6 space-y-5 bg-[#0f172a] border border-white/10 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-white/10 pb-2">
-                <h2 class="font-bold text-white text-sm">Settings</h2>
-                <button onclick="toggleSettings()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
+            <h2 class="font-bold text-white text-sm border-b border-white/10 pb-2">Settings</h2>
             <div class="space-y-4 text-xs">
                 <div>
                     <label class="text-gray-500 font-bold uppercase block mb-1">OpenRouter API Key</label>
@@ -193,8 +192,9 @@
                     </div>
                 </div>
                 <div>
-                    <label class="text-gray-500 font-bold uppercase block mb-1">TTS Voice Selection</label>
-                    <select id="voiceSelect"></select>
+                    <label class="text-gray-500 font-bold uppercase block mb-1 text-blue-400">Voice Selection (All PC Voices)</label>
+                    <select id="voiceSelect" class="w-full text-white cursor-pointer"></select>
+                    <p class="text-[9px] text-gray-500 mt-1">* Refresh page if list is empty.</p>
                 </div>
                 <div>
                     <label class="text-gray-500 font-bold uppercase block mb-1">System Prompt</label>
@@ -253,7 +253,7 @@
             lucide.createIcons();
         };
 
-        // Sidebar Toggle Logic
+        // Improved Sidebar logic for PC Hide problem
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('mobileOverlay');
@@ -272,7 +272,7 @@
             }
         }
 
-        // Model Switcher Logic
+        // Model Switcher
         function updateModelUI() {
             const cleanName = activeModelId.split('/').pop().split(':')[0].replace(/(-free|-preview)/gi, '').replace(/-/g, ' ').toUpperCase();
             document.getElementById('activeModelLabel').innerText = cleanName;
@@ -289,7 +289,7 @@
             quickMenu.innerHTML = savedModels.map(m => {
                 const mName = m.split('/').pop().split(':')[0].replace(/(-free|-preview)/gi, '').replace(/-/g, ' ').toUpperCase();
                 return `
-                    <div class="model-item ${m === activeModelId ? 'active' : ''} text-white text-xs" onclick="switchModel('${m}')">
+                    <div class="model-item ${m === activeModelId ? 'active' : ''}" onclick="switchModel('${m}')">
                         <span>${mName}</span>
                         ${m === activeModelId ? '<i data-lucide="check" class="w-3 h-3 text-blue-500"></i>' : ''}
                     </div>
@@ -326,10 +326,10 @@
                 if (activeModelId === id) activeModelId = savedModels[0];
                 localStorage.setItem('hvn_models', JSON.stringify(savedModels));
                 updateModelUI();
-            } else { alert("At least one model is required!"); }
+            } else { alert("Minimum one model required!"); }
         }
 
-        // Chat Logic
+        // Chatting
         async function sendMessage() {
             const input = document.getElementById('userInput');
             const userText = input.value.trim();
@@ -365,7 +365,7 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error?.message || "Connection Failed");
+                    throw new Error(errorData.error?.message || "Connection Error");
                 }
 
                 const reader = response.body.getReader();
@@ -434,6 +434,28 @@
             return div;
         }
 
+        // Voice Populate Fix for PC
+        function initTTS() {
+            const populateVoices = () => {
+                voices = speechSynthesis.getVoices();
+                if (voices.length === 0) return;
+                const s = document.getElementById('voiceSelect');
+                const lastSelected = s.value;
+                s.innerHTML = voices.map((v, i) => `<option value="${i}" ${i == lastSelected ? 'selected' : ''}>${v.name} (${v.lang})</option>`).join('');
+            };
+            populateVoices();
+            if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoices;
+            // Immediate retry for Chrome
+            setTimeout(populateVoices, 500);
+        }
+
+        function speakText(id) {
+            if (speechSynthesis.speaking) { speechSynthesis.cancel(); return; }
+            const utterance = new SpeechSynthesisUtterance(document.getElementById(id).innerText);
+            if(voices.length > 0) utterance.voice = voices[document.getElementById('voiceSelect').value];
+            speechSynthesis.speak(utterance);
+        }
+
         // Utils
         function handleInput(t) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
         function clearInput() { const i = document.getElementById('userInput'); i.value = ""; handleInput(i); }
@@ -458,30 +480,25 @@
             chats = await dbLoadChats();
             renderHistory();
         }
-
         function renderHistory() {
             const q = (document.querySelector('input[placeholder="Search history..."]')?.value || "").toLowerCase();
             document.getElementById('historyList').innerHTML = chats.filter(c => c.title.toLowerCase().includes(q)).map(c => `<div onclick="loadChat(${c.id})" class="flex items-center justify-between p-2 hover:bg-white/5 rounded-lg cursor-pointer group text-white ${c.id === currentChatId ? 'bg-blue-600/20 text-blue-400' : ''}"><span class="truncate">${c.title}</span><i data-lucide="trash-2" onclick="deleteChat(${c.id}, event)" class="opacity-0 group-hover:opacity-100 text-red-400 w-3 h-3"></i></div>`).join('');
             lucide.createIcons();
         }
-
         async function loadChat(id) {
             const c = chats.find(x => x.id === id); if (!c) return;
             currentChatId = id; messages = [...c.messages];
             const view = document.getElementById('chatView'); view.innerHTML = '';
             messages.forEach(m => { const div = appendMessage(m.role, m.content, m.model); if (m.role === 'assistant') postProcessMessage(div); });
-            renderHistory();
-            closeSidebarMobile();
+            renderHistory(); if (window.innerWidth < 1024) toggleSidebar();
         }
-
         async function deleteChat(id, e) {
             e.stopPropagation(); if (confirm("Delete?")) {
                 const tx = db.transaction("chats", "readwrite"); tx.objectStore("chats").delete(id);
                 chats = await dbLoadChats(); currentChatId === id ? createNewChat() : renderHistory();
             }
         }
-
-        function createNewChat() { currentChatId = Date.now(); messages = []; document.getElementById('chatView').innerHTML = '<div class="ai-msg message p-4 border border-white/10 rounded-xl text-white">How can I help you today?</div>'; renderHistory(); closeSidebarMobile(); }
+        function createNewChat() { currentChatId = Date.now(); messages = []; document.getElementById('chatView').innerHTML = '<div class="ai-msg message p-4 border border-white/10 rounded-xl text-white">Hello! How can I assist you today?</div>'; renderHistory(); closeSidebarMobile(); }
 
         async function handleFileUpload(input) {
             const file = input.files[0]; if (!file) return;
@@ -498,7 +515,7 @@
                         const textContent = await page.getTextContent();
                         fullText += textContent.items.map(s => s.str).join(" ") + "\n";
                     }
-                    pendingFileContent = `\n[PDF: ${file.name}]\n${fullText}\n`;
+                    pendingFileContent = `\n[PDF Content: ${file.name}]\n${fullText}\n`;
                     area.innerHTML = `<div class="file-card text-white"><i data-lucide="file-text" class="w-4 h-4 text-blue-400"></i> <span>${file.name}</span><button onclick="clearFile()" class="remove-btn">×</button></div>`;
                     lucide.createIcons();
                 }; reader.readAsArrayBuffer(file);
@@ -511,18 +528,6 @@
                 reader.onload = (e) => { pendingFileContent = `\n[File: ${file.name}]\n${e.target.result}\n`; area.innerHTML = `<div class="file-card text-white"><i data-lucide="file-text" class="w-4 h-4 text-blue-400"></i> <span>${file.name}</span><button onclick="clearFile()" class="remove-btn">×</button></div>`; lucide.createIcons(); };
                 reader.readAsText(file);
             }
-        }
-
-        function initTTS() {
-            const loadVoices = () => { voices = speechSynthesis.getVoices(); const s = document.getElementById('voiceSelect'); s.innerHTML = voices.map((v, i) => `<option value="${i}">${v.name}</option>`).join(''); };
-            loadVoices(); if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
-        }
-
-        function speakText(id) {
-            if (speechSynthesis.speaking) { speechSynthesis.cancel(); return; }
-            const utterance = new SpeechSynthesisUtterance(document.getElementById(id).innerText);
-            utterance.voice = voices[document.getElementById('voiceSelect').value];
-            speechSynthesis.speak(utterance);
         }
         function filterHistory(v) { renderHistory(); }
     </script>
